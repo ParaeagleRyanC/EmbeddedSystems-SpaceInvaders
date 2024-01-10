@@ -2,6 +2,6 @@
 
 // Lab1 - print hello world on the board.
 int main() {
-  printf("Hello, World!\n");
+  printf("Hello, World from Ryan Chiang!\n");
   return 0;
 }
