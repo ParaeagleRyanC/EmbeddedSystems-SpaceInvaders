@@ -11,24 +11,27 @@
 #define EXIT_ERROR -1
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
+#define TENTH_SECOND_MS 100
+#define HALF_SECOND_MS 500
 #define ONE_SECOND_MS 1000
 #define SECOND_ROLLOVER 59
 #define MINUTE_ROLLOVER 59
 #define HOUR_ROLLOVER 23
 
-uint8_t buttons;
-uint8_t switches;
-int hour = 23;
-int minute = 58;
-int second = 50;
-uint16_t debounceTimer = 0;
-uint16_t secondTimer = 0;
-bool increment;
+static uint8_t buttons;
+static uint8_t switches;
+static int hour = 23;
+static int minute = 58;
+static int second = 50;
+static int debounceTimer = 0;
+static int secondTimer = 0;
+static int fastIncDecTimer = 0;
+static bool increment;
 
 
 void print_time() {
-  printf("\033[2J\033[H");
-  printf("%02d:%02d:%02d", hour, minute, second);
+  // printf("\033[2J\033[H");
+  printf("\r%02d:%02d:%02d", hour, minute, second);
 }
 
 void regular_clock_advance() {
@@ -49,6 +52,7 @@ void regular_clock_advance() {
   }
 }
 
+// increment or decrement second
 void inc_dec_second() {
   if (increment) {
     if (second == SECOND_ROLLOVER) {
@@ -78,6 +82,43 @@ void inc_dec_second() {
   }
 }
 
+// increment or decrement minute
+void inc_dec_minute() {
+  if (increment) {
+    if (minute == MINUTE_ROLLOVER) {
+      minute = 0;
+      if (hour == HOUR_ROLLOVER) {
+        hour = 0;
+      }
+      else hour++;
+    }
+    else minute++;
+  }
+  else {
+    if (minute == 0) {
+      minute = MINUTE_ROLLOVER;
+      if (second == 0) {
+        second = SECOND_ROLLOVER;
+      }
+      else second--;
+    }
+    else minute--;
+  }
+}
+
+// increment or decrement hour
+void inc_dec_hour() {
+  if (increment) {
+    if (hour == HOUR_ROLLOVER) hour = 0;
+    else hour++;
+  }
+  else {
+    if (hour == 0) hour = HOUR_ROLLOVER;
+    else hour--;
+  }
+}
+
+
 // This is invoked in response to a timer interrupt.
 // It does 2 things: 1) help debounce buttons, and 2) advances the time.
 void isr_fit() {
@@ -85,10 +126,10 @@ void isr_fit() {
   switches = switches_read();
   
   // if SW1 is high, clock stops
-  if (switches == SWITCHES_1_MASK) return;
+  if ((switches == 0x1) || (switches == 0x0)) return;
 
   // if SW0 is high, increment flag is set to high
-  if (switches == SWITCHES_0_MASK) increment = true;
+  if (switches & SWITCHES_0_MASK) increment = true;
   else increment = false;
 
   // increment second timer 
@@ -98,15 +139,26 @@ void isr_fit() {
   debounceTimer += TEN_MS;
 
   // button debounced, proceed to increment/decrement
-  if (debounceTimer >= DEBOUNCED_MS) {
-    // reset secondTimer so regular_clock_advance() doesn't get executed
-    secondTimer = 0;
+  if (debounceTimer == DEBOUNCED_MS) {
     if (buttons == BUTTONS_0_MASK) inc_dec_second();
+    if (buttons == BUTTONS_1_MASK) inc_dec_minute();
+    if (buttons == BUTTONS_2_MASK) inc_dec_hour();
+    print_time();
+    //return;
+  }
+
+  // increment/decrement fast
+  if (debounceTimer >= HALF_SECOND_MS && buttons) {
+    fastIncDecTimer += TEN_MS;
+    if (fastIncDecTimer >= TENTH_SECOND_MS) {
+      if (buttons == BUTTONS_0_MASK) inc_dec_second();
+      if (buttons == BUTTONS_1_MASK) inc_dec_minute();
+      if (buttons == BUTTONS_2_MASK) inc_dec_hour();
+    }
   }
 
   // advance the clock as normal
   regular_clock_advance();
-
   print_time();
 }
 
