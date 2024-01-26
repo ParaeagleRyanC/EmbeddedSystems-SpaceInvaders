@@ -8,6 +8,13 @@
     "C_Cpp.clang_format_fallbackStyle": "LLVM",
     "files.associations": {
         "unistd.h": "c",
-        "intc.h": "c"
+        "intc.h": "c",
+        "buttons.h": "c",
+        "cstdio": "c",
+        "atomic": "c",
+        "*.tcc": "c",
+        "cstdint": "c",
+        "random": "c",
+        "switches.h": "c"
     }
 }
