@@ -17,23 +17,25 @@
 #define SECOND_ROLLOVER 59
 #define MINUTE_ROLLOVER 59
 #define HOUR_ROLLOVER 23
+#define ALL_BUTTONS 0x3
 
 static uint8_t buttons;
 static uint8_t switches;
-static int hour = 23;
-static int minute = 58;
-static int second = 50;
-static int debounceTimer = 0;
-static int secondTimer = 0;
-static int fastIncDecTimer = 0;
+static uint16_t hour = 23;
+static uint16_t minute = 58;
+static uint16_t second = 50;
+static uint16_t debounceTimer = 0;
+static uint16_t secondTimer = 0;
+static uint16_t fastIncDecTimer = 0;
 static bool increment;
 
-
+// print current time 
 void print_time() {
-  // printf("\033[2J\033[H");
   printf("\r%02d:%02d:%02d", hour, minute, second);
+  fflush(stdout);
 }
 
+// increment the clock as normal
 void regular_clock_advance() {
   if (secondTimer >= ONE_SECOND_MS) {
     if (second == SECOND_ROLLOVER) {
@@ -97,10 +99,10 @@ void inc_dec_minute() {
   else {
     if (minute == 0) {
       minute = MINUTE_ROLLOVER;
-      if (second == 0) {
-        second = SECOND_ROLLOVER;
+      if (hour == 0) {
+        hour = HOUR_ROLLOVER;
       }
-      else second--;
+      else hour--;
     }
     else minute--;
   }
@@ -118,7 +120,6 @@ void inc_dec_hour() {
   }
 }
 
-
 // This is invoked in response to a timer interrupt.
 // It does 2 things: 1) help debounce buttons, and 2) advances the time.
 void isr_fit() {
@@ -126,7 +127,10 @@ void isr_fit() {
   switches = switches_read();
   
   // if SW1 is high, clock stops
-  if ((switches == 0x1) || (switches == 0x0)) return;
+  if (switches & SWITCHES_1_MASK) {
+    // advance the clock as normal
+    regular_clock_advance();
+  };
 
   // if SW0 is high, increment flag is set to high
   if (switches & SWITCHES_0_MASK) increment = true;
@@ -140,25 +144,29 @@ void isr_fit() {
 
   // button debounced, proceed to increment/decrement
   if (debounceTimer == DEBOUNCED_MS) {
+    // inc/dec base on which button is pushed
     if (buttons == BUTTONS_0_MASK) inc_dec_second();
-    if (buttons == BUTTONS_1_MASK) inc_dec_minute();
-    if (buttons == BUTTONS_2_MASK) inc_dec_hour();
-    print_time();
-    //return;
+    else if (buttons == BUTTONS_1_MASK) inc_dec_minute();
+    else if (buttons == BUTTONS_2_MASK) inc_dec_hour();
+    // default to inc/dec second if multiple buttons pushed at once
+    else if (buttons & ALL_BUTTONS) inc_dec_second();
   }
 
   // increment/decrement fast
   if (debounceTimer >= HALF_SECOND_MS && buttons) {
     fastIncDecTimer += TEN_MS;
     if (fastIncDecTimer >= TENTH_SECOND_MS) {
+      // inc/dec base on which button is pushed
       if (buttons == BUTTONS_0_MASK) inc_dec_second();
-      if (buttons == BUTTONS_1_MASK) inc_dec_minute();
-      if (buttons == BUTTONS_2_MASK) inc_dec_hour();
+      else if (buttons == BUTTONS_1_MASK) inc_dec_minute();
+      else if (buttons == BUTTONS_2_MASK) inc_dec_hour();
+      // default to inc/dec second if multiple buttons pushed at once
+      else if (buttons & ALL_BUTTONS) inc_dec_second();
+      fastIncDecTimer = 0;
     }
   }
 
-  // advance the clock as normal
-  regular_clock_advance();
+  // print time 
   print_time();
 }
 
