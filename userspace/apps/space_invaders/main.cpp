@@ -4,21 +4,9 @@
 #include "intc/intc.h"
 #include "buttons/buttons.h"
 #include "switches/switches.h"
+#include "Graphics.h"
 
 #define EXIT_ERROR -1
-
-int main() {
-    // Print a welcome message
-    std::cout << "Hello, World!" << std::endl;
-
-    initialize();
-
-    // call gameover/highscore screen
-
-
-    // Return 0 to indicate successful execution
-    return 0;
-}
 
 // initialize buttons/switches/intc
 void initialize() {
@@ -44,4 +32,17 @@ void initialize() {
         std::cerr << "Error: " << "switches_init failed" << std::endl;
         exit(EXIT_ERROR);
     }
+}
+
+int main() {
+    // Print a welcome message
+    std::cout << "Hello, World!" << std::endl;
+
+    initialize();
+
+    // call gameover/highscore screen
+    Graphics graphics;
+
+    // Return 0 to indicate successful execution
+    return 0;
 }

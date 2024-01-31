@@ -3,31 +3,31 @@ include_directories(.)
 add_executable(space_invaders 
     main.cpp
 
-    Globals.cpp
-    Score.cpp
-    Lives.cpp
+    # Globals.cpp
+    # Score.cpp
+    # Lives.cpp
 
     Graphics.cpp
-    Sprite.cpp
-    Sprites.cpp
-    resources/sprites.c
+    # Sprite.cpp
+    # Sprites.cpp
+    # resources/sprites.c
 
-    GameObject.cpp
+    # GameObject.cpp
 
-    Gameplay.cpp
-    Bunker.cpp
-    Bunkers.cpp
-    BunkerBlock.cpp
-    Tank.cpp
-    UFO.cpp
+    # Gameplay.cpp
+    # Bunker.cpp
+    # Bunkers.cpp
+    # BunkerBlock.cpp
+    # Tank.cpp
+    # UFO.cpp
     
-    Bullets.cpp
-    Bullet.cpp
+    # Bullets.cpp
+    # Bullet.cpp
 
-    Aliens.cpp
-    Alien.cpp
+    # Aliens.cpp
+    # Alien.cpp
 
-    HighScores.cpp
+    # HighScores.cpp
 )
 
 
