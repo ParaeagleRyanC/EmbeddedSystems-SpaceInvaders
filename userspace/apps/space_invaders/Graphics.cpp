@@ -22,7 +22,14 @@ Graphics::Graphics() {
 
 // Fill the screen.  This is fastest if you write line by line.
 void Graphics::fillScreen(rgb_t color) {
+    uint32_t totalNumPixels = GRAPHICS_WIDTH * GRAPHICS_HEIGHT;
+    rgb_t* screenBuffer = new rgb_t[totalNumPixels];
 
+    for (uint32_t i = 0; i < totalNumPixels; i++)
+        screenBuffer[i] = color;
+
+    write(fd, screenBuffer, totalNumPixels * sizeof(rgb_t));
+    delete[] screenBuffer;
 }
 
 // This draws a sprite of given size and color at an x,y location.  This
