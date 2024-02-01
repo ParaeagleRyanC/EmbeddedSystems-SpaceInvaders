@@ -65,5 +65,12 @@ void Graphics::drawStrCentered(std::string str, uint16_t y, uint8_t size, rgb_t 
 // account the character sizes, and spacing between characters.  For a given
 // string and size, this should return the same value as drawStr.
 uint16_t Graphics::getStrWidth(uint8_t strLen, uint8_t size) {
-    return 0;
+	uint16_t strWidth = 0;
+	
+	for (uint8_t i = 0; i < strLen; i++) {
+		char c = str[i];
+		uint16_t charWidth = size * 8;
+		strWidth += charWidth;
+	}
+    return strWidth;
 }
