@@ -8,9 +8,9 @@ add_executable(space_invaders
     # Lives.cpp
 
     Graphics.cpp
-    # Sprite.cpp
-    # Sprites.cpp
-    # resources/sprites.c
+    Sprite.cpp
+    Sprites.cpp
+    resources/sprites.c
 
     # GameObject.cpp
 

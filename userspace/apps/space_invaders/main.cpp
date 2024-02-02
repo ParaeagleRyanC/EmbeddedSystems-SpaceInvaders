@@ -5,6 +5,9 @@
 #include "buttons/buttons.h"
 #include "switches/switches.h"
 #include "Graphics.h"
+#include "Colors.h"
+#include "Sprite.h"
+#include "Sprites.h"
 
 #define EXIT_ERROR -1
 
@@ -42,6 +45,17 @@ int main() {
 
     // call gameover/highscore screen
     Graphics graphics;
+
+    rgb_t green = Colors::GREEN;
+    rgb_t white = Colors::WHITE;
+    rgb_t black = Colors::BLACK;
+
+
+    graphics.fillScreen(green);
+
+    Sprites sprites;
+    Sprite* sprite = sprites.getChar('A');
+    graphics.drawSprite(sprite, 200, 200, 1, white, black);
 
     // Return 0 to indicate successful execution
     return 0;
