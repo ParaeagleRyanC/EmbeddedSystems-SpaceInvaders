@@ -51,11 +51,16 @@ int main() {
     rgb_t black = Colors::BLACK;
 
 
-    graphics.fillScreen(green);
+    graphics.fillScreen(black);
 
     Sprites sprites;
-    Sprite* sprite = sprites.getChar('A');
-    graphics.drawSprite(sprite, 200, 200, 1, white, black);
+    Sprite* sprite = sprites.getChar('H');
+
+    graphics.drawSprite(sprite, 50, 200, 1, white, black);
+    graphics.drawSprite(sprite, 100, 200, 2, white, black);
+    //graphics.drawSprite(sprite, 400, 200, 10, white, black);
+    //graphics.drawStr("Hello World", 100, 200, 1, white);
+    //graphics.drawStrCentered("Hello World", 200, 1, white);
 
     // Return 0 to indicate successful execution
     return 0;
