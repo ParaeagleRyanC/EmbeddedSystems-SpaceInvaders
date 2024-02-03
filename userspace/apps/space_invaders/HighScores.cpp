@@ -18,7 +18,8 @@
 
 
 Graphics graphics = Graphics();
-rgb_t textColor = Colors::WHITE;
+rgb_t white = Colors::WHITE;
+rgb_t green = Colors::GREEN;
 
 // helper function to get the filepath to highscore.txt
 std::string getPathToHighScoreTxt() {
@@ -32,22 +33,15 @@ std::string getPathToHighScoreTxt() {
     ssize_t pathLength = readlink(symlinkPath, path, sizeof(path) - 1);
 
     // convert path buffer to string
-    std::string str(path, pathLength);
+    std::string fpath(path, pathLength);
 
     // find the index of the last slash
-    size_t lastSlashIndex = str.find_last_of('/') + 1;
+    size_t index = fpath.find("userspace");
 
     // replace the space_invaders exe with highscores.txt
-    str.replace(lastSlashIndex, pathLength - lastSlashIndex, "highscores.txt");
+    fpath.replace(index, pathLength - index, "userspace/apps/space_invaders/highscores.txt");
 
-
-    // if (length != -1) {
-    //     std::cout << "Symbolic link points to: " << filePath << std::endl;
-    // } else {
-    //     std::cerr << "Error reading symbolic link" << std::endl;    
-    // }
-
-    return str;
+    return fpath;
 }
 
 // helper function to get the data in highscore.txt
@@ -84,7 +78,7 @@ HighScores::HighScores(uint32_t score) {
     userEntry = "AAA";
     entryIdx = 0;
     tickCnt = 0;
-    tickCntMax = 50;
+    tickCntMax = 30;
     showChar = true;
     nameEntryY = 0;
     filePath = getPathToHighScoreTxt();
@@ -94,7 +88,7 @@ HighScores::HighScores(uint32_t score) {
 
 // Used to draw the name entry screen.
 void HighScores::drawUserEntry(std::string entry) {
-    graphics.drawStrCentered(entry, USER_ENTRY_Y, USER_ENTRY_SIZE, textColor);
+    graphics.drawStr(entry, 296, USER_ENTRY_Y, USER_ENTRY_SIZE, white);
 }
 
 // Tick the name entry screen
@@ -133,7 +127,6 @@ void HighScores::tickUserEntry(uint8_t btn) {
 
 // Triggers the highScores to be written out to the file.
 void HighScores::save() {
-
     // put name and score into vector
     highScores.emplace_back(userEntry, score);
 
@@ -141,6 +134,9 @@ void HighScores::save() {
     std::sort(highScores.begin(), highScores.end(), [](const auto& a, const auto& b) {
         return a.second > b.second;
     });
+
+    // draw highscores 
+    drawHighScores();
 
     // Keep only the top 10 entries
     if (highScores.size() > 10) {
@@ -154,13 +150,23 @@ void HighScores::save() {
     for (const auto& pair : highScores) {
         outputFile << pair.first << " " << pair.second << "\n";
     }
-
 }
 
 // Draw the high scores screen (shown after the user enters their initials, or
 // immediately after game over if a new high score is not achieved)
 void HighScores::drawHighScores() {
-    uint16_t yPos = 120;
+
+    rgb_t textColor = white;
+    bool highLightOnce = true;
+
+    // erase "ENTER YOUR NAME"
+    graphics.drawStrCentered("               ", 55, 3, textColor); // same size as ENTER YOUR NAME
+    // write "HIGH SCORES"
+    graphics.drawStrCentered("HIGH SCORES", 55, 3, textColor); // same size as ENTER YOUR NAME
+    // erase name
+    graphics.drawStr("   ", 296, USER_ENTRY_Y, 1, textColor); // same size as name
+
+    uint16_t yPos = USER_ENTRY_Y;
     uint16_t yInc = 20;
 
     // loop through the vector
@@ -169,11 +175,17 @@ void HighScores::drawHighScores() {
         std::stringstream ss;
         ss << std::setw(5) << std::setfill('0') << pair.second;
 
+        if (pair.first == userEntry && pair.second == score && highLightOnce) {
+            textColor = green;
+            highLightOnce = false;
+        }
+        else textColor = white;
+
         // combine name and score into one string
         std::string entry = pair.first + "   " + ss.str();
         
         // print to screen
-        graphics.drawStrCentered(entry, yPos, USER_ENTRY_SIZE, textColor);
+        graphics.drawStr(entry, 275, yPos, USER_ENTRY_SIZE, textColor);
 
         // increment y position
         yPos += yInc;

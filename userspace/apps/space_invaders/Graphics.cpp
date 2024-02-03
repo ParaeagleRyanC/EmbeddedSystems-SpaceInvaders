@@ -45,35 +45,66 @@ void Graphics::fillScreen(rgb_t color) {
 void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
                 rgb_t color, rgb_t bgColor) {
 
-    lseek(fd,GRAPHICS_WIDTH*y*3 + x*3,SEEK_SET);
+
+    lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
     uint8_t spriteWidth = sprite->getWidth();
     uint8_t spriteHeight = sprite->getHeight();
 
-    for (int i = 0; i < spriteHeight; i++)
+    if(size == 1)
     {
-        uint32_t sprite_col = 0;
-        char line[spriteWidth*3];
-        for (int j = 0; j < spriteWidth * 3;j+=3)
-        {
-            if(sprite->isFgPixel(i,sprite_col))
-            {
+        for (int i = 0; i < spriteHeight; i++) {
+            uint32_t sprite_col = 0;
+            char line[spriteWidth * 3 * size];
+            for (int j = 0; j < spriteWidth * 3; j += 3) {
+            if (sprite->isFgPixel(i, sprite_col)) {
                 line[j] = color.r;
-                line[j + 1] = color.g;
-                line[j + 2] = color.b;
-                //std::cout << "1 ";
-            }
-            else
-            {
+                line[j+1] = color.g;
+                line[j+2] = color.b;
+                //   oss << "1 ";
+            } else {
                 line[j] = bgColor.r;
-                line[j + 1] = bgColor.g;
-                line[j + 2] = bgColor.b;
-                //std::cout << "0 ";
+                line[j+1] = bgColor.g;
+                line[j+2] = bgColor.b;
             }
             sprite_col++;
+            }
+            write(fd, line, sizeof(line));
+            lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth), SEEK_CUR);
         }
-        //std::cout << std::endl;
-        write(fd,line,sizeof(line));
-        lseek(fd,3*(GRAPHICS_WIDTH - spriteWidth),SEEK_CUR);
+    }
+    else {
+        for (int i = 0; i < spriteHeight; i++) {
+            uint32_t sprite_col = 0;
+            char line[spriteWidth * 3 * size];
+            std::vector<char> tempLine;
+            for (int j = 0; j < spriteWidth * 3; j += 3) {
+                if (sprite->isFgPixel(i, sprite_col)) {
+                    for(int l = 0; l < size; l++)
+                    {
+                        tempLine.push_back(color.r);
+                        tempLine.push_back(color.g);
+                        tempLine.push_back(color.b);
+                    }
+                    //   oss << "1 ";
+                } else {
+                    for(int l = 0; l < size; l++)
+                    {
+                        tempLine.push_back(bgColor.r);
+                        tempLine.push_back(bgColor.g);
+                        tempLine.push_back(bgColor.b);
+                    }
+                }
+                sprite_col++;
+            }
+            for (int j = 0; j < spriteWidth * 3 * size;j++)
+            {
+                line[j] = tempLine.at(j);
+            }
+            for (int j = 0; j < size; j++){
+                write(fd, line, sizeof(line));
+                lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth * size), SEEK_CUR);
+            }
+        }
     }
 }
 
@@ -82,31 +113,33 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
 // so will be slower.  This is needed to draw the bunker damage.
 void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
                 rgb_t color) {
-    lseek(fd,GRAPHICS_WIDTH*y*3 + x*3,SEEK_SET);
+    lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
     uint8_t spriteWidth = sprite->getWidth();
     uint8_t spriteHeight = sprite->getHeight();
 
-    for (int i = 0; i < spriteHeight; i++)
-    {
+    for (int i = 0; i < spriteHeight; i++) {
         uint32_t sprite_col = 0;
-        //char line[spriteWidth*3];
-        for (int j = 0; j < spriteWidth * 3;j+=3)
-        {
-            char pixel[3];
-            if(sprite->isFgPixel(i,sprite_col))
+        // char line[spriteWidth*3];
+        for (int j = 0; j < spriteWidth * 3; j += 3) {
+        char pixel[3];
+        if (sprite->isFgPixel(i, sprite_col)) {
+            pixel[0] = color.r;
+            pixel[1] = color.g;
+            pixel[2] = color.b;
+            for (int j = 0; j < size; j++)
             {
-                pixel[0] = color.r;
-                pixel[1] = color.g;
-                pixel[2] = color.b;
                 write(fd, pixel, 3);
             }
-            else
-            {
-                lseek(fd,3,SEEK_CUR);
-            }
-            sprite_col++;
+        } else {
+            lseek(fd, 3*size, SEEK_CUR);
         }
-        lseek(fd,3*(GRAPHICS_WIDTH - spriteWidth),SEEK_CUR);
+        sprite_col++;
+        }
+        for(int j = 0; j < size; j++)
+        {
+            lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth), SEEK_CUR);
+        }
+        
     }
 }
 
@@ -133,10 +166,11 @@ uint16_t Graphics::drawStr(std::string str, uint16_t x, uint16_t y, uint8_t size
 
         // calculate the new x position
         x = x + (SPRITES_5X5_ROWS * size + 2);
-        //std::cout << x << std::endl;
+
+        rgb_t black = Colors::BLACK;
         
         // call draw sprite to draw the sprite with default background as RED
-        drawSprite(sprite, x, y, size, color, Colors::BLACK);
+        drawSprite(sprite, x, y, size, color, black);
     }
 
     return getStrWidth(str.length(), size);
@@ -159,5 +193,5 @@ void Graphics::drawStrCentered(std::string str, uint16_t y, uint8_t size, rgb_t 
 // account the character sizes, and spacing between characters.  For a given
 // string and size, this should return the same value as drawStr.
 uint16_t Graphics::getStrWidth(uint8_t strLen, uint8_t size) {
-    return strLen * size * SPRITES_5X5_ROWS + (strLen - 1) * SPACING;
+    return strLen * size * SPRITES_5X5_ROWS + (strLen - 1) * size * SPACING;
 }

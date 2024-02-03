@@ -84,29 +84,19 @@ int main() {
 
     initialize();
 
-    // call gameover/highscore screen
     Graphics graphics;
+    HighScores highScores = HighScores(4500);
 
+    // colors
     rgb_t green = Colors::GREEN;
     rgb_t white = Colors::WHITE;
     rgb_t black = Colors::BLACK;
 
+    bool saveHighscores = true;
 
     graphics.fillScreen(black);
-
-    Sprites sprites;
-    Sprite* sprite = sprites.getChar('K');
-
-    // graphics.drawSprite(sprite, 50, 200, 1, white, black);
-    // graphics.drawSprite(sprite, 100, 200, 2, white, black);
-    //graphics.drawSprite(sprite, 400, 200, 10, white, black);
-    //graphics.drawStr("Hello World", 100, 200, 1, white);
-    //graphics.drawStrCentered("Hello World", 200, 1, white);
-
-    HighScores highScores = HighScores(200);
-    highScores.save();
-    highScores.drawHighScores();
-    // Return 0 to indicate successful execution
+    graphics.drawStrCentered("GAME OVER", 15, 5, white); // this will be way bigger
+    graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, white); // slightly smaller
 
 
     while (1) {
@@ -123,6 +113,10 @@ int main() {
             if (nextBtnPresses < 3) {
                 highScores.tickUserEntry(button);
                 button = 0;
+            }
+            else if (saveHighscores){
+                highScores.save();
+                saveHighscores = false;
             }
         }
 
