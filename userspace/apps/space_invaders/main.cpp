@@ -8,6 +8,7 @@
 #include "Colors.h"
 #include "Sprite.h"
 #include "Sprites.h"
+#include "HighScores.h"
 
 #define EXIT_ERROR -1
 
@@ -35,11 +36,51 @@ void initialize() {
         std::cerr << "Error: " << "switches_init failed" << std::endl;
         exit(EXIT_ERROR);
     }
+
+        // Enable interrupt output from buttons
+    buttons_enable_interrupts();
+
+    // Enable button and FIT interrupt lines on interrupt controller
+    intc_irq_enable(SYSTEM_INTC_IRQ_BUTTONS_MASK);
+    intc_irq_enable(SYSTEM_INTC_IRQ_FIT_MASK);
+
+}
+
+static uint8_t buttons;
+static uint8_t button;
+static uint16_t debounceTimer = 0;
+#define DEBOUNCED_MS 30
+#define TEN_MS 10
+
+// This is invoked each time there is a change in the button state (result of a
+// push or a bounce).
+void isr_buttons() {
+  buttons = buttons_read();
+  debounceTimer = 0;
+  buttons_ack_interrupt();
+}
+
+uint8_t nextBtnPresses = 0;
+
+// This is invoked in response to a timer interrupt.
+// help debounce buttons
+void isr_fit() {
+  // increment debounce timer
+  debounceTimer += TEN_MS;
+
+  // button debounced, proceed to increment/decrement
+  if (debounceTimer == DEBOUNCED_MS) {
+    if (buttons == BUTTONS_0_MASK) button = DONE_BTN;
+    else if (buttons == BUTTONS_1_MASK) {
+        button = NEXT_BTN;
+        nextBtnPresses++;
+    }
+    else if (buttons == BUTTONS_2_MASK) button = DEC_LETTER;
+    else if (buttons == BUTTONS_3_MASK) button = INC_LETTER;
+  }
 }
 
 int main() {
-    // Print a welcome message
-    std::cout << "Hello, World!" << std::endl;
 
     initialize();
 
@@ -54,14 +95,49 @@ int main() {
     graphics.fillScreen(black);
 
     Sprites sprites;
-    Sprite* sprite = sprites.getChar('H');
+    Sprite* sprite = sprites.getChar('K');
 
-    graphics.drawSprite(sprite, 50, 200, 1, white, black);
-    graphics.drawSprite(sprite, 100, 200, 2, white, black);
+    // graphics.drawSprite(sprite, 50, 200, 1, white, black);
+    // graphics.drawSprite(sprite, 100, 200, 2, white, black);
     //graphics.drawSprite(sprite, 400, 200, 10, white, black);
     //graphics.drawStr("Hello World", 100, 200, 1, white);
     //graphics.drawStrCentered("Hello World", 200, 1, white);
 
+    HighScores highScores = HighScores(200);
+    highScores.save();
+    highScores.drawHighScores();
     // Return 0 to indicate successful execution
+
+
+    while (1) {
+        // Call interrupt controller function to wait for interrupt
+        uint32_t interrupts = intc_wait_for_interrupt();
+
+        // Check which interrupt lines are high and call the appropriate ISR
+        // functions
+        if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {
+            // call isr_fit() to debounce button
+            isr_fit();
+
+            // call tickUserEntry up to 3 next btn presses
+            if (nextBtnPresses < 3) {
+                highScores.tickUserEntry(button);
+                button = 0;
+            }
+        }
+
+        if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK)
+            isr_buttons();
+
+        // Acknowledge the intc interrupt
+        intc_ack_interrupt(interrupts);
+
+        // Re-enable UIO interrupts
+        intc_enable_uio_interrupts();
+    }
+
+    intc_exit();
+    buttons_exit();
+
     return 0;
 }

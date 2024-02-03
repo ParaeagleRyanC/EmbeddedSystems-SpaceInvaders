@@ -149,7 +149,7 @@ void Graphics::drawStrCentered(std::string str, uint16_t y, uint8_t size, rgb_t 
     uint16_t strWidth = getStrWidth(str.length(), size);
 
     // find the x position to start
-    uint16_t xStart = (GRAPHICS_WIDTH - strWidth) / 2;
+    uint16_t xStart = (GRAPHICS_WIDTH - (strWidth / 2)) / 2;
 
     // call drawStr function to actually draw the str
     drawStr(str, xStart, y, size, color);

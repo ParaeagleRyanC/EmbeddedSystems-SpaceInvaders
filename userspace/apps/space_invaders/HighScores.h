@@ -7,6 +7,11 @@
 
 #include "config.h"
 
+#define DONE_BTN 0
+#define NEXT_BTN 1
+#define DEC_LETTER 2
+#define INC_LETTER 3
+
 // Use to draw the high score screen, accept user's high score name, and
 // read/write the high scores file.
 class HighScores {
@@ -52,10 +57,10 @@ private:
 
 public:
   // Used to draw the name entry screen.
-  void drawUserEntry();
+  void drawUserEntry(std::string entry);
 
   // Tick the name entry screen
-  void tickUserEntry();
+  void tickUserEntry(uint8_t btn);
 
   // Whether the user is done entering their initials.
   bool isUserEntryDone() { return entryIdx >= HIGH_SCORES_NUM_CHARS; };
