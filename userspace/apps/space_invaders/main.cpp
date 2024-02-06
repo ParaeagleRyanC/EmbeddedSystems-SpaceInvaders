@@ -7,6 +7,7 @@
 #include "Graphics.h"
 #include "Colors.h"
 #include "Sprite.h"
+#include "Score.h"
 #include "Sprites.h"
 #include "HighScores.h"
 
@@ -95,43 +96,50 @@ int main() {
     bool saveHighscores = true;
 
     graphics.fillScreen(black);
-    graphics.drawStrCentered("GAME OVER", 15, 5, white); // this will be way bigger
-    graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, white); // slightly smaller
 
 
-    while (1) {
-        // Call interrupt controller function to wait for interrupt
-        uint32_t interrupts = intc_wait_for_interrupt();
+    Score score = Score();
+    score.draw();
 
-        // Check which interrupt lines are high and call the appropriate ISR
-        // functions
-        if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {
-            // call isr_fit() to debounce button
-            isr_fit();
 
-            // call tickUserEntry up to 3 next btn presses
-            if (nextBtnPresses < 3) {
-                highScores.tickUserEntry(button);
-                button = 0;
-            }
-            else if (saveHighscores){
-                highScores.save();
-                saveHighscores = false;
-            }
-        }
 
-        if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK)
-            isr_buttons();
+    // graphics.drawStrCentered("GAME OVER", 15, 5, white); // this will be way bigger
+    // graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, white); // slightly smaller
 
-        // Acknowledge the intc interrupt
-        intc_ack_interrupt(interrupts);
 
-        // Re-enable UIO interrupts
-        intc_enable_uio_interrupts();
-    }
+    // while (1) {
+    //     // Call interrupt controller function to wait for interrupt
+    //     uint32_t interrupts = intc_wait_for_interrupt();
 
-    intc_exit();
-    buttons_exit();
+    //     // Check which interrupt lines are high and call the appropriate ISR
+    //     // functions
+    //     if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {
+    //         // call isr_fit() to debounce button
+    //         isr_fit();
+
+    //         // call tickUserEntry up to 3 next btn presses
+    //         if (nextBtnPresses < 3) {
+    //             highScores.tickUserEntry(button);
+    //             button = 0;
+    //         }
+    //         else if (saveHighscores){
+    //             highScores.save();
+    //             saveHighscores = false;
+    //         }
+    //     }
+
+    //     if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK)
+    //         isr_buttons();
+
+    //     // Acknowledge the intc interrupt
+    //     intc_ack_interrupt(interrupts);
+
+    //     // Re-enable UIO interrupts
+    //     intc_enable_uio_interrupts();
+    // }
+
+    // intc_exit();
+    // buttons_exit();
 
     return 0;
 }

@@ -10,7 +10,7 @@ class Tank;
 // Used to track and draw the number of player lives.
 class Lives {
 public:
-  Lives() : numLives(LIVES_AT_START) {}
+  Lives() : numLives(LIVES_AT_START),  xDrawTankStart(500) {}
 
 private:
   // Number of lives the player has.
@@ -39,11 +39,11 @@ public:
   bool isGameOver() { return numLives == 0; }
 
   // Trigger losing a life and erasing a tank sprite
-  void loseALife();
+  void loseALife() { numLives--; }
 
   // Trigger gaining a life (happens when all aliens are destroyed); however,
   // make sure not to increase lives past the max number of lives.
-  void gainALife();
+  void gainALife() { numLives++; }
 };
 
 #endif /* LIVES_H */

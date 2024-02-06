@@ -8,7 +8,7 @@
 // The player tank (can also be used to draw the tanks for the lives)
 class Tank : public GameObject {
 public:
-  // Player tank (initialized to starting locating)
+  // Player tank (initialized to starting location)
   Tank();
 
   // Tank for player lives, drawn at given x,y coordinate
