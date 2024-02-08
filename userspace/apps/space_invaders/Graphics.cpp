@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 
+#include "Globals.h"
 #include "Graphics.h"
 #include "Sprites.h"
 #include "Sprite.h"
@@ -146,8 +147,6 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
 // Draws a string on the screen, and returns the width
 uint16_t Graphics::drawStr(std::string str, uint16_t x, uint16_t y, uint8_t size,
                 rgb_t color) {
-    
-    Sprites sprites;
 
     // iterate through each char in the str
     for (uint16_t i = 0; i < str.length(); i++) {
@@ -162,7 +161,7 @@ uint16_t Graphics::drawStr(std::string str, uint16_t x, uint16_t y, uint8_t size
             c = toupper(c);
 
         // get the sprite with a given char
-        Sprite* sprite = sprites.getChar(c);
+        Sprite* sprite = Globals::getSprites().getChar(c);
 
         // calculate the new x position
         x = x + (SPRITES_5X5_ROWS * size + 2);

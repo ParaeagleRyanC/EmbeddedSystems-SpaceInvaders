@@ -7,6 +7,7 @@
 #include "BunkerBlock.h"
 #include "GameObject.h"
 #include "Graphics.h"
+#include "config.h"
 
 class Bullet;
 

@@ -5,12 +5,14 @@
 
 #include "config.h"
 
+#define TANK_LIVE_SPACING 35
+
 class Tank;
 
 // Used to track and draw the number of player lives.
 class Lives {
 public:
-  Lives() : numLives(LIVES_AT_START),  xDrawTankStart(500) {}
+  Lives();
 
 private:
   // Number of lives the player has.
@@ -36,14 +38,14 @@ public:
   void draw();
 
   // Whether the game is over due to running out of lives
-  bool isGameOver() { return numLives == 0; }
+  bool isGameOver();
 
   // Trigger losing a life and erasing a tank sprite
-  void loseALife() { numLives--; }
+  void loseALife();
 
   // Trigger gaining a life (happens when all aliens are destroyed); however,
   // make sure not to increase lives past the max number of lives.
-  void gainALife() { numLives++; }
+  void gainALife();
 };
 
 #endif /* LIVES_H */

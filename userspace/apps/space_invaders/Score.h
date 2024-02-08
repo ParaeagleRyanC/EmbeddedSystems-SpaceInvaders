@@ -9,8 +9,6 @@
 #include <sstream>
 
 #include "config.h"
-#include "Graphics.h"
-#include "Colors.h"
 
 // Kepp track of and draw the game score
 class Score {
@@ -33,12 +31,7 @@ public:
   uint32_t getScore() { return score; }
 
   // Draw the score at game start
-  void draw() {
-    rgb_t scoreColor = Colors::WHITE;
-    std::string scoreString = "SCORE " + padScore(getScore()); 
-    Graphics graphics = Graphics();
-    graphics.drawStr(scoreString, 5, 5, 2, scoreColor);
-  }
+  void draw();
 
   // Call the functions when aliens are hit.
   void hitTopAlien() {
