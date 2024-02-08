@@ -12,7 +12,7 @@ add_executable(space_invaders
     Sprites.cpp
     resources/sprites.c
 
-    # GameObject.cpp
+    GameObject.cpp
 
     # Gameplay.cpp
     # Bunker.cpp

@@ -75,34 +75,11 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
     }
     else {
         for (int i = 0; i < spriteHeight; i++) {
-            uint32_t sprite_col = 0;// lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
-    // uint8_t spriteWidth = sprite->getWidth();
-    // uint8_t spriteHeight = sprite->getHeight();
-
-    // for (int i = 0; i < spriteHeight; i++) {
-    //     uint32_t sprite_col = 0;
-    //     // char line[spriteWidth*3];
-    //     for (int j = 0; j < spriteWidth * 3; j += 3) {
-    //     char pixel[3];
-    //     if (sprite->isFgPixel(i, sprite_col)) {
-    //         pixel[0] = color.r;
-    //         pixel[1] = color.g;
-    //         pixel[2] = color.b;
-    //         for (int j = 0; j < size; j++)
-    //         {
-    //             write(fd, pixel, 3);
-    //         }
-    //     } else {
-    //         lseek(fd, 3*size, SEEK_CUR);
-    //     }
-    //     sprite_col++;
-    //     }
-    //     for(int j = 0; j < size; j++)
-    //     {
-    //         lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth), SEEK_CUR);
-    //     }
-        
-    // }e_col)) {
+            uint32_t sprite_col = 0;
+            char line[spriteWidth * 3 * size];
+            std::vector<char> tempLine;
+            for (int j = 0; j < spriteWidth * 3; j += 3) {
+                if (sprite->isFgPixel(i, sprite_col)) {
                     for(int l = 0; l < size; l++)
                     {
                         tempLine.push_back(color.r);
