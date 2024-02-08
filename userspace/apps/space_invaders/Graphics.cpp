@@ -3,6 +3,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <iostream>
+#include <cassert>
 
 #include "Graphics.h"
 #include "Sprites.h"
@@ -126,7 +127,7 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
 
             for(uint8_t x_size = 0; x_size < size; x_size++)
             {
-                for (uint_t y_size = 0; y_size < size;y_size++)
+                for (uint8_t y_size = 0; y_size < size;y_size++)
                 {
                     lseek(fd,
                             (y + row * size + y_size) * GRAPHICS_WIDTH * BYTES_PER_PIXEL + (x + col * size + x_size) * BYTES_PER_PIXEL, SEEK_SET);
