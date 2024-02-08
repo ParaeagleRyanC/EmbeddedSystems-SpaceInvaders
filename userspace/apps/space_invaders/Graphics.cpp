@@ -15,6 +15,7 @@
 
 #define OPEN_ERROR -1
 #define SPACING 10
+#define BYTES_PER_PIXEL 3
 
 // initialize hdmi
 Graphics::Graphics() {
@@ -74,11 +75,34 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
     }
     else {
         for (int i = 0; i < spriteHeight; i++) {
-            uint32_t sprite_col = 0;
-            char line[spriteWidth * 3 * size];
-            std::vector<char> tempLine;
-            for (int j = 0; j < spriteWidth * 3; j += 3) {
-                if (sprite->isFgPixel(i, sprite_col)) {
+            uint32_t sprite_col = 0;// lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
+    // uint8_t spriteWidth = sprite->getWidth();
+    // uint8_t spriteHeight = sprite->getHeight();
+
+    // for (int i = 0; i < spriteHeight; i++) {
+    //     uint32_t sprite_col = 0;
+    //     // char line[spriteWidth*3];
+    //     for (int j = 0; j < spriteWidth * 3; j += 3) {
+    //     char pixel[3];
+    //     if (sprite->isFgPixel(i, sprite_col)) {
+    //         pixel[0] = color.r;
+    //         pixel[1] = color.g;
+    //         pixel[2] = color.b;
+    //         for (int j = 0; j < size; j++)
+    //         {
+    //             write(fd, pixel, 3);
+    //         }
+    //     } else {
+    //         lseek(fd, 3*size, SEEK_CUR);
+    //     }
+    //     sprite_col++;
+    //     }
+    //     for(int j = 0; j < size; j++)
+    //     {
+    //         lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth), SEEK_CUR);
+    //     }
+        
+    // }e_col)) {
                     for(int l = 0; l < size; l++)
                     {
                         tempLine.push_back(color.r);
@@ -113,33 +137,26 @@ void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
 // so will be slower.  This is needed to draw the bunker damage.
 void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
                 rgb_t color) {
-    lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
-    uint8_t spriteWidth = sprite->getWidth();
-    uint8_t spriteHeight = sprite->getHeight();
+    uint8_t width = sprite->getWidth();
+    uint8_t height = sprite->getHeight();
 
-    for (int i = 0; i < spriteHeight; i++) {
-        uint32_t sprite_col = 0;
-        // char line[spriteWidth*3];
-        for (int j = 0; j < spriteWidth * 3; j += 3) {
-        char pixel[3];
-        if (sprite->isFgPixel(i, sprite_col)) {
-            pixel[0] = color.r;
-            pixel[1] = color.g;
-            pixel[2] = color.b;
-            for (int j = 0; j < size; j++)
-            {
-                write(fd, pixel, 3);
-            }
-        } else {
-            lseek(fd, 3*size, SEEK_CUR);
-        }
-        sprite_col++;
-        }
-        for(int j = 0; j < size; j++)
+    for(uint8_t row = 0; row < height; row++)
+    {
+        for(uint8_t col = 0; col < width;col++)
         {
-            lseek(fd, 3 * (GRAPHICS_WIDTH - spriteWidth), SEEK_CUR);
+            if(!sprite->isFgPixel(row, width-col-1)){continue;}
+            uint32_t pixel = color.r | (color.g << 8) | (color.b << 8);
+
+            for(uint8_t x_size = 0; x_size < size; x_size++)
+            {
+                for (uint_t y_size = 0; y_size < size;y_size++)
+                {
+                    lseek(fd,
+                            (y + row * size + y_size) * GRAPHICS_WIDTH * BYTES_PER_PIXEL + (x + col * size + x_size) * BYTES_PER_PIXEL, SEEK_SET);
+                    assert(write(fd,&pixel,BYTES_PER_PIXEL) == BYTES_PER_PIXEL);        
+                }
+            }
         }
-        
     }
 }
 
