@@ -19,7 +19,7 @@ add_executable(space_invaders
     Bunkers.cpp
     # BunkerBlock.cpp
     Tank.cpp
-    # UFO.cpp
+    UFO.cpp
     
     # Bullets.cpp
     # Bullet.cpp

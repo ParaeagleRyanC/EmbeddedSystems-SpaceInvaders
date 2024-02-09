@@ -123,6 +123,7 @@ int main() {
 
     Globals::getBunkers().draw();
 
+    Globals::getUFO().draw();
 
     // graphics.drawStrCentered("GAME OVER", 15, 5, Globals::getColorWhite()); // this will be way bigger
     // graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, Globals::getColorWhite()); // slightly smaller
