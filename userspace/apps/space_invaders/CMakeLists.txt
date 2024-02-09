@@ -14,7 +14,7 @@ add_executable(space_invaders
 
     GameObject.cpp
 
-    # Gameplay.cpp
+    Gameplay.cpp
     Bunker.cpp
     Bunkers.cpp
     # BunkerBlock.cpp

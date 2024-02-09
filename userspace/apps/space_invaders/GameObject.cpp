@@ -1,6 +1,7 @@
 #include "GameObject.h"
 #include "Sprite.h"
 #include <stdint.h>
+#include <iostream>
 #include "Globals.h"
 
 

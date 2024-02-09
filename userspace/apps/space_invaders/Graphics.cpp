@@ -48,7 +48,6 @@ void Graphics::fillScreen(rgb_t color) {
 void Graphics::drawSprite(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size,
                 rgb_t color, rgb_t bgColor) {
 
-
     lseek(fd, GRAPHICS_WIDTH * y * 3 + x * 3, SEEK_SET);
     uint8_t spriteWidth = sprite->getWidth();
     uint8_t spriteHeight = sprite->getHeight();

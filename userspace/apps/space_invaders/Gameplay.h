@@ -29,6 +29,10 @@ public:
   // Tick the game
   void tick();
 
+  void buttons_isr();
+
+  void end_game();
+  
   // Return whether the game is over (all lives lost, or aliens reach the
   // bottom)
   bool isGameOver();
