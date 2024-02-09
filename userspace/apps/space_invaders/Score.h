@@ -31,7 +31,7 @@ public:
   uint32_t getScore() { return score; }
 
   // Draw the score at game start
-  void draw();
+  void draw(); 
 
   // Call the functions when aliens are hit.
   void hitTopAlien() {
