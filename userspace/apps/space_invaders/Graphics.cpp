@@ -40,6 +40,17 @@ void Graphics::fillScreen(rgb_t color) {
     delete[] screenBuffer;
 }
 
+// Fill the screen.  This is fastest if you write line by line.
+void Graphics::drawLine(rgb_t color) {
+    rgb_t* screenBuffer = new rgb_t[GRAPHICS_WIDTH];
+
+    for (uint32_t i = 0; i < GRAPHICS_WIDTH; i++)
+        screenBuffer[i] = color;
+
+    write(fd, screenBuffer, GRAPHICS_WIDTH * sizeof(rgb_t));
+    delete[] screenBuffer;
+}
+
 // This draws a sprite of given size and color at an x,y location.  This
 // version of the function is given a background color (bgColor), such that
 // every pixel of sprite region is written (with either color or bgColor).

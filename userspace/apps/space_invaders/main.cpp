@@ -107,6 +107,7 @@ int main() {
 
     Tank tank = Tank();
     tank.draw();
+    Globals::getGraphics().drawLine(Globals::getColorGreen());
 
     bool saveHighscores = true;
 
