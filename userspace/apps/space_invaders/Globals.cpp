@@ -11,3 +11,4 @@ rgb_t Globals::colorRed = Colors::RED;
 Bunkers Globals::bunkers;
 Lives Globals::lives;
 Score Globals::score;
+UFO Globals::ufo;

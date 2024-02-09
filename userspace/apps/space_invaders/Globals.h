@@ -8,6 +8,7 @@
 #include "Sprites.h"
 #include "system.h"
 #include "Bunkers.h"
+#include "UFO.h"
 
 // Track all global variables as static members of this class
 class Globals {
@@ -25,6 +26,7 @@ private:
   static Bunkers bunkers;
   static Score score;
   static Lives lives;
+  static UFO ufo;
 
 public:
   Globals(const Globals &) = delete; // prevent Globals from become instantiated
@@ -40,6 +42,7 @@ public:
   static double getTickPeriod() { return SYSTEM_FIT_PERIOD_SECONDS; }
   static Score &getScore() { return score; }
   static Lives &getLives() { return lives; }
+  static UFO &getUFO() {return ufo; }
 };
 
 #endif /* GLOBALS_H */
