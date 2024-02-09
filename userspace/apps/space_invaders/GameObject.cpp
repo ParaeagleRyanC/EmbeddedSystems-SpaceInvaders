@@ -1,22 +1,8 @@
 #include "GameObject.h"
-<<<<<<< HEAD
-
-
-
-GameObject::GameObject(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size, rgb_t color) {
-    
-}
-=======
 #include "Sprite.h"
 #include <stdint.h>
-#include "Graphics.h"
-#include "Colors.h"
+#include "Globals.h"
 
-
-static Graphics graphics;
-static rgb_t green = Colors::GREEN;
-static rgb_t white = Colors::WHITE;
-static rgb_t black = Colors::BLACK;
 
 GameObject::GameObject(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size, rgb_t color)
 {
@@ -30,18 +16,18 @@ GameObject::GameObject(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size, rgb
 
 void GameObject::draw()
 {
-    graphics.drawSprite(sprite, x, y, size, color, black);
+    Globals::getGraphics().drawSprite(sprite, x, y, size, color, Globals::getBackgroundColor());
 }
 
 void GameObject::erase()
 {
-    graphics.drawSprite(sprite, x, y, size, black);
+    Globals::getGraphics().drawSprite(sprite, x, y, size, Globals::getBackgroundColor());
 }
 
 void GameObject::move(Sprite *newSprite, int16_t delta_x, int16_t delta_y)
 {
     this->erase();
-    graphics.drawSprite(newSprite, delta_x, delta_y, this->size, this->color);
+    Globals::getGraphics().drawSprite(newSprite, delta_x, delta_y, this->size, this->color);
 }
 
 void GameObject::resurrect()
@@ -50,4 +36,3 @@ void GameObject::resurrect()
     this->draw();
 }
 
->>>>>>> origin/main
