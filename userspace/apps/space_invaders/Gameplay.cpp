@@ -6,6 +6,7 @@
 #include "buttons/buttons.h"
 #include "switches/switches.h"
 #include "intc/intc.h"
+#include "UFO.h"
 
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
@@ -65,6 +66,8 @@ void Gameplay::drawInit()
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
+
+    Globals::getUFO().tick();
 
     //this is the block for the tank
     if (debounceTimer == DEBOUNCED_MS) {

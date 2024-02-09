@@ -34,14 +34,11 @@ uint32_t UFO::getRandomHideDelayTicks() {
 bool UFO::tick() {
     //Increase tick count
     tickCnt++;
-    printf("Tick count:%d\n", tickCnt);
-    printf("Tick Max:%d\n", hideTickMax);
 
     switch(state) {
         // Hidden State
         case HIDDEN:
             if(tickCnt >= hideTickMax) {
-                printf("Unhidden\n");
                 // if() resurrect();
                 // else if() move(nullptr, -GRAPHICS_WIDTH, 0);
                 draw();
@@ -53,7 +50,6 @@ bool UFO::tick() {
         case MOVING:
             // Move over more
             if(tickCnt >= moveTickMax) {
-                printf("Moving\n");
                 move(Globals::getSprites().getUFO(), UFO_MOVE_X_DISTANCE, 0);
                 // move(nullptr, UFO_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
@@ -61,7 +57,6 @@ bool UFO::tick() {
             }
             // Reach the end of the screen
             else if(getX() + getWidth() > GRAPHICS_WIDTH) {
-                printf("Hit Edge!\n");
                 move(Globals::getSprites().getUFO(), -(GRAPHICS_WIDTH - 0)/2, 0);
                 // erase();
                 state = HIDDEN;
