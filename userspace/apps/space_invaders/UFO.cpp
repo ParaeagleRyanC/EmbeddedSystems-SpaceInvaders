@@ -1,17 +1,14 @@
 #include "UFO.h"
-#include "Sprites.h"
 #include "config.h"
 #include "system.h"
 #include "Globals.h"
-#include "Colors.h"
 
 #include <time.h>
-#include <stdio.h>
 
 // The flying UFO object
 UFO::UFO() : GameObject(Globals::getSprites().getUFO(), 0, UFO_Y, UFO_SIZE, Globals::getColorRed()),
-                        tickCnt(0), moveTickMax(UFO_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS),
-                        hideTickMax(UFO::getRandomHideDelayTicks()), state(HIDDEN), flagKill(false) {}
+                tickCnt(0), moveTickMax(UFO_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS),
+                hideTickMax(UFO::getRandomHideDelayTicks()), state(HIDDEN), flagKill(false) {}
 
 // Calculate the random number of ticks until the UFO should appear
 uint32_t UFO::getRandomHideDelayTicks() {
@@ -30,15 +27,14 @@ bool UFO::tick() {
         case HIDDEN:
             if(tickCnt >= hideTickMax) {
                 // Respawn
-                if(!isAlive()) {
-                    resurrect();
-                }
+                if(!isAlive()) resurrect();
                 // Reappear
                 else draw();
                 tickCnt = 0;
                 state = MOVING;
             }
             break;
+
         // Moving State
         case MOVING:
             // Move over more
