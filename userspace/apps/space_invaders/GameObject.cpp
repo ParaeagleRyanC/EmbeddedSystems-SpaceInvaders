@@ -21,13 +21,15 @@ void GameObject::draw()
 
 void GameObject::erase()
 {
-    Globals::getGraphics().drawSprite(sprite, x, y, size, Globals::getBackgroundColor());
+    Globals::getGraphics().drawSprite(sprite, x, y, size, Globals::getBackgroundColor(), Globals::getBackgroundColor());
 }
 
 void GameObject::move(Sprite *newSprite, int16_t delta_x, int16_t delta_y)
 {
     this->erase();
-    Globals::getGraphics().drawSprite(newSprite, delta_x, delta_y, this->size, this->color);
+    x += delta_x;
+    y += delta_y;
+    Globals::getGraphics().drawSprite(newSprite, x, y, this->size, this->color, Globals::getBackgroundColor());
 }
 
 void GameObject::resurrect()

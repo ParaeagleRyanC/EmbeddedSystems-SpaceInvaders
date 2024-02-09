@@ -5,6 +5,9 @@
 
 #include "GameObject.h"
 
+#define MOVE_RIGHT 2
+#define MOVE_LEFT 3
+
 // The player tank (can also be used to draw the tanks for the lives)
 class Tank : public GameObject {
 public:
@@ -12,13 +15,13 @@ public:
   Tank();
 
   // Tank for player lives, drawn at given x,y coordinate
-  Tank(uint16_t x, uint16_t y);
+  // Tank(uint16_t x, uint16_t y);
 
 private:
   // Tick counter and max tick for moving the tank
   uint32_t tickCnt;
-  const uint32_t tickMax;
-  const uint32_t deathTickMax;
+  const uint32_t tickMax = 5;
+  const uint32_t deathTickMax = 5;
 
   // Tank state, which is either alive or switching between the two explosion
   // sprites for a given time.
@@ -34,7 +37,7 @@ private:
 
 public:
   // Tick the tank
-  bool tick();
+  bool tick(uint8_t btn);
 
   // Check for collisions between alien bullets and the tank
   void checkCollisions();
