@@ -13,38 +13,28 @@ UFO::UFO() : GameObject(Globals::getSprites().getUFO(), 0, UFO_Y, UFO_SIZE, Glob
                         tickCnt(0), moveTickMax(UFO_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS),
                         hideTickMax(UFO::getRandomHideDelayTicks()), state(HIDDEN), flagKill(false) {}
 
-
-//  {
-//     tickCnt = 0;
-//     moveTickMax = (UFO_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS);
-//     hideTickMax = getRandomHideDelayTicks();
-//     state = HIDDEN;
-//     flagKill = false;
-// }
-
 // Calculate the random number of ticks until the UFO should appear
 uint32_t UFO::getRandomHideDelayTicks() {
     srand (time(NULL));
-    uint32_t numSecs = rand() % 10 + 5;
-    // return numSecs / SYSTEM_FIT_PERIOD_SECONDS;
-    return 200;
+    uint32_t numSecs = rand() % (UFO_HIDE_DELAY_MAX_SECONDS-UFO_HIDE_DELAY_MIN_SECONDS) + UFO_HIDE_DELAY_MIN_SECONDS;
+    return numSecs / SYSTEM_FIT_PERIOD_SECONDS;
 }
 
 // Tick the UFO and return whether it moved
 bool UFO::tick() {
     //Increase tick count
     tickCnt++;
-    printf("Tick count:%d\n", tickCnt);
-    printf("Tick Max:%d\n", hideTickMax);
 
     switch(state) {
         // Hidden State
         case HIDDEN:
             if(tickCnt >= hideTickMax) {
-                printf("Unhidden\n");
-                // if() resurrect();
-                // else if() move(nullptr, -GRAPHICS_WIDTH, 0);
-                draw();
+                // Respawn
+                if(!isAlive()) {
+                    resurrect();
+                }
+                // Reappear
+                else draw();
                 tickCnt = 0;
                 state = MOVING;
             }
@@ -53,22 +43,21 @@ bool UFO::tick() {
         case MOVING:
             // Move over more
             if(tickCnt >= moveTickMax) {
-                printf("Moving\n");
                 move(Globals::getSprites().getUFO(), UFO_MOVE_X_DISTANCE, 0);
-                // move(nullptr, UFO_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
                 return true;
             }
             // Reach the end of the screen
             else if(getX() + getWidth() > GRAPHICS_WIDTH) {
-                printf("Hit Edge!\n");
-                move(Globals::getSprites().getUFO(), -(GRAPHICS_WIDTH - 0)/2, 0);
-                // erase();
+                move(Globals::getSprites().getUFO(), -getX(), 0);
+                erase();
+                checkCollisions();
                 state = HIDDEN;
             }
             // Get destroyed
             else if(flagKill) {
-                // kill();
+                kill();
+                flagKill = false;
             }
             break;
     }
