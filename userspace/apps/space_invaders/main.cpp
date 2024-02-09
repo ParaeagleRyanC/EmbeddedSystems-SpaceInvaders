@@ -1,12 +1,16 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "system.h"
 #include "intc/intc.h"
 #include "buttons/buttons.h"
 #include "switches/switches.h"
+#include "Globals.h"
 #include "Graphics.h"
 #include "Colors.h"
 #include "Sprite.h"
+#include "Score.h"
 #include "Sprites.h"
 #include "HighScores.h"
 
@@ -84,54 +88,65 @@ int main() {
 
     initialize();
 
-    Graphics graphics;
     HighScores highScores = HighScores(4500);
-
-    // colors
-    rgb_t green = Colors::GREEN;
-    rgb_t white = Colors::WHITE;
-    rgb_t black = Colors::BLACK;
 
     bool saveHighscores = true;
 
-    graphics.fillScreen(black);
-    graphics.drawStrCentered("GAME OVER", 15, 5, white); // this will be way bigger
-    graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, white); // slightly smaller
+    Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
 
 
-    while (1) {
-        // Call interrupt controller function to wait for interrupt
-        uint32_t interrupts = intc_wait_for_interrupt();
+    Globals::getScore().draw();
+    Globals::getLives().draw();
 
-        // Check which interrupt lines are high and call the appropriate ISR
-        // functions
-        if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {
-            // call isr_fit() to debounce button
-            isr_fit();
+    // Sleep for 2 seconds for testing
+    //std::this_thread::sleep_for(std::chrono::seconds(2));
+    Globals::getLives().loseALife();
 
-            // call tickUserEntry up to 3 next btn presses
-            if (nextBtnPresses < 3) {
-                highScores.tickUserEntry(button);
-                button = 0;
-            }
-            else if (saveHighscores){
-                highScores.save();
-                saveHighscores = false;
-            }
-        }
+    // Sleep for 2 seconds for testing
+    //std::this_thread::sleep_for(std::chrono::seconds(2));
+    Globals::getLives().gainALife();
 
-        if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK)
-            isr_buttons();
+    Globals::getBunkers().draw();
 
-        // Acknowledge the intc interrupt
-        intc_ack_interrupt(interrupts);
 
-        // Re-enable UIO interrupts
-        intc_enable_uio_interrupts();
-    }
 
-    intc_exit();
-    buttons_exit();
+    // graphics.drawStrCentered("GAME OVER", 15, 5, Globals::getColorWhite()); // this will be way bigger
+    // graphics.drawStrCentered("ENTER YOUR NAME", 55, 2, Globals::getColorWhite()); // slightly smaller
+
+
+    // while (1) {
+    //     // Call interrupt controller function to wait for interrupt
+    //     uint32_t interrupts = intc_wait_for_interrupt();
+
+    //     // Check which interrupt lines are high and call the appropriate ISR
+    //     // functions
+    //     if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {
+    //         // call isr_fit() to debounce button
+    //         isr_fit();
+
+    //         // call tickUserEntry up to 3 next btn presses
+    //         if (nextBtnPresses < 3) {
+    //             highScores.tickUserEntry(button);
+    //             button = 0;
+    //         }
+    //         else if (saveHighscores){
+    //             highScores.save();
+    //             saveHighscores = false;
+    //         }
+    //     }
+
+    //     if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK)
+    //         isr_buttons();
+
+    //     // Acknowledge the intc interrupt
+    //     intc_ack_interrupt(interrupts);
+
+    //     // Re-enable UIO interrupts
+    //     intc_enable_uio_interrupts();
+    // }
+
+    // intc_exit();
+    // buttons_exit();
 
     return 0;
 }

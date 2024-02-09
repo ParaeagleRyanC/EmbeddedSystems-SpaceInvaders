@@ -1,6 +1,7 @@
 #include "HighScores.h"
 #include "Graphics.h"
 #include "Colors.h"
+#include "Globals.h"
 
 #include <unistd.h>
 #include <iostream>
@@ -16,10 +17,6 @@
 #define USER_ENTRY_Y 100
 #define USER_ENTRY_SIZE 1
 
-
-Graphics graphics = Graphics();
-rgb_t white = Colors::WHITE;
-rgb_t green = Colors::GREEN;
 
 // helper function to get the filepath to highscore.txt
 std::string getPathToHighScoreTxt() {
@@ -88,7 +85,7 @@ HighScores::HighScores(uint32_t score) {
 
 // Used to draw the name entry screen.
 void HighScores::drawUserEntry(std::string entry) {
-    graphics.drawStr(entry, 296, USER_ENTRY_Y, USER_ENTRY_SIZE, white);
+    Globals::getGraphics().drawStr(entry, 296, USER_ENTRY_Y, USER_ENTRY_SIZE, Globals::getColorWhite());
 }
 
 // Tick the name entry screen
@@ -156,15 +153,15 @@ void HighScores::save() {
 // immediately after game over if a new high score is not achieved)
 void HighScores::drawHighScores() {
 
-    rgb_t textColor = white;
+    rgb_t textColor = Globals::getColorWhite();
     bool highLightOnce = true;
 
     // erase "ENTER YOUR NAME"
-    graphics.drawStrCentered("               ", 55, 3, textColor); // same size as ENTER YOUR NAME
+    Globals::getGraphics().drawStrCentered("               ", 55, 3, textColor); // same size as ENTER YOUR NAME
     // write "HIGH SCORES"
-    graphics.drawStrCentered("HIGH SCORES", 55, 3, textColor); // same size as ENTER YOUR NAME
+    Globals::getGraphics().drawStrCentered("HIGH SCORES", 55, 3, textColor); // same size as ENTER YOUR NAME
     // erase name
-    graphics.drawStr("   ", 296, USER_ENTRY_Y, 1, textColor); // same size as name
+    Globals::getGraphics().drawStr("   ", 296, USER_ENTRY_Y, 1, textColor); // same size as name
 
     uint16_t yPos = USER_ENTRY_Y;
     uint16_t yInc = 20;
@@ -176,16 +173,16 @@ void HighScores::drawHighScores() {
         ss << std::setw(5) << std::setfill('0') << pair.second;
 
         if (pair.first == userEntry && pair.second == score && highLightOnce) {
-            textColor = green;
+            textColor = Globals::getColorGreen();
             highLightOnce = false;
         }
-        else textColor = white;
+        else textColor = Globals::getColorWhite();
 
         // combine name and score into one string
         std::string entry = pair.first + "   " + ss.str();
         
         // print to screen
-        graphics.drawStr(entry, 275, yPos, USER_ENTRY_SIZE, textColor);
+        Globals::getGraphics().drawStr(entry, 275, yPos, USER_ENTRY_SIZE, textColor);
 
         // increment y position
         yPos += yInc;
