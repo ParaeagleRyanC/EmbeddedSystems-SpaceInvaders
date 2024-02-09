@@ -20,8 +20,8 @@ public:
 private:
   // Tick counter and max tick for moving the tank
   uint32_t tickCnt;
-  const uint32_t tickMax = 5;
-  const uint32_t deathTickMax = 5;
+  const uint32_t tickMax;
+  const uint32_t deathTickMax;
 
   // Tank state, which is either alive or switching between the two explosion
   // sprites for a given time.
