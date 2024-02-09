@@ -22,6 +22,7 @@
 int main() {
 
     HighScores highScores = HighScores(4500);
+
     bool saveHighscores = true;
 
     Gameplay game = Gameplay();

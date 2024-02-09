@@ -30,6 +30,8 @@ public:
   // Fill the screen.  This is fastest if you write line by line.
   void fillScreen(rgb_t color);
 
+  void drawLine(rgb_t color);
+
   // This draws a sprite of given size and color at an x,y location.  This
   // version of the function is given a background color (bgColor), such that
   // every pixel of sprite region is written (with either color or bgColor).

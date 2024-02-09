@@ -13,6 +13,7 @@ GameObject::GameObject(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size, rgb
     this->y = y;
 
     this->sprite = sprite;
+    alive = true;
 }
 
 void GameObject::draw()
@@ -31,6 +32,12 @@ void GameObject::move(Sprite *newSprite, int16_t delta_x, int16_t delta_y)
     x += delta_x;
     y += delta_y;
     Globals::getGraphics().drawSprite(newSprite, x, y, this->size, this->color, Globals::getBackgroundColor());
+}
+
+void GameObject::kill()
+{
+    alive = false;
+    this->erase();
 }
 
 void GameObject::resurrect()

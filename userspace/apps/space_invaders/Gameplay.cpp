@@ -61,6 +61,8 @@ void Gameplay::drawInit()
     Globals::getLives().draw();
     Globals::getBunkers().draw();
     tank->draw();
+    Globals::getGraphics().drawLine(Globals::getColorGreen());
+
 }
 
 void Gameplay::tick()
