@@ -1,5 +1,4 @@
 #include "Globals.h"
-#include "Colors.h"
 
 Graphics Globals::graphics;
 Sprites Globals::sprites;

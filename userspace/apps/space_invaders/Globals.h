@@ -9,6 +9,7 @@
 #include "system.h"
 #include "Bunkers.h"
 #include "UFO.h"
+#include "Colors.h"
 
 // Track all global variables as static members of this class
 class Globals {
