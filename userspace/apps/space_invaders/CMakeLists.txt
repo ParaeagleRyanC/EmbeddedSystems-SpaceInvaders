@@ -24,8 +24,8 @@ add_executable(space_invaders
     # Bullets.cpp
     # Bullet.cpp
 
-    # Aliens.cpp
-    # Alien.cpp
+    Aliens.cpp
+    Alien.cpp
 
     HighScores.cpp
 )

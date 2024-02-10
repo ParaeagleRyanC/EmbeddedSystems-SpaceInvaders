@@ -1,6 +1,7 @@
 #include "Gameplay.h"
 #include "Bunkers.h"
 #include "Tank.h"
+#include "Aliens.h"
 #include "Globals.h"
 #include <iostream>
 #include "buttons/buttons.h"
@@ -12,6 +13,9 @@
 #define TEN_MS 10
 #define EXIT_ERROR -1
 
+static uint32_t clockTimer = 0;
+static uint32_t secondsTimer = 0;
+static uint32_t secondsTimerD1 = -1;
 static uint8_t buttons;
 static uint8_t button;
 static uint16_t debounceTimer = 0;
@@ -22,6 +26,9 @@ bool canMoveTank = false;
 Gameplay::Gameplay()
 {
     this->tank = new Tank();
+    this->aliens = new Aliens();
+    aliens->initialize();
+
     Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
 
     int err;
@@ -62,12 +69,14 @@ void Gameplay::drawInit()
     Globals::getBunkers().draw();
     tank->draw();
     Globals::getGraphics().drawLine(Globals::getColorGreen());
-
+    aliens->draw();
 }
 
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
+    clockTimer++;
+    secondsTimer = (clockTimer * 0.05);// SYSTEM_FIT_PERIOD_SECONDS);
 
     Globals::getUFO().tick();
 
@@ -89,6 +98,13 @@ void Gameplay::tick()
         tank->tick(button);
         fastIncDecTimer = 0;
     }
+
+    if(secondsTimer > secondsTimerD1)
+    {
+        aliens->tick();
+    }
+
+    secondsTimerD1 = secondsTimer;
 }
 
 void Gameplay::buttons_isr()

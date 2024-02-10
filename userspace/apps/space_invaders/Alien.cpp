@@ -14,20 +14,23 @@ Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y) :
 
 void Alien::moveLeft()
 {
-    if(in){move(spriteIn,-1,0);}
-    else{move(spriteOut,-1,0);}
+    this->in = !in;
+    if(in){move(spriteIn,-3,0);}
+    else{move(spriteOut,-3,0);}
 }
 
 void Alien::moveRight()
 {
-    if(in){move(spriteIn,+1,0);}
-    else{move(spriteOut,+1,0);}
+    this->in = !in;
+    if(in){move(spriteIn,3,0);}
+    else{move(spriteOut,3,0);}
 }
 
 void Alien::moveDown()
 {
-    if(in){move(spriteIn,0,-1);}
-    else{move(spriteOut,0,-1);}
+    this->in = !in;
+    if(in){move(spriteIn,0,20);}
+    else{move(spriteOut,0,20);}
 }
 
 void Alien::explode()

@@ -16,7 +16,7 @@ private:
 
   // Tick counter and max ticks for moving the aliens
   uint32_t moveTickCnt;
-  const uint32_t moveTickMax;
+  const uint32_t moveTickMax = 5;
 
   // Tick counter and max ticks for firing an alien bullet
   uint32_t fireTickCnt;
@@ -53,6 +53,10 @@ public:
   // Generate a random number of ticks for firing the next alien bullet and
   // store in fireTickMax
   void generateRandomFireDelay();
+
+  // check for the live alien on either side of the group
+  // and update moving direction when needed
+  void updateMovingDirection();
 
   // Number of aliens alive
   uint16_t numAlive() { return numAliensAlive; }
