@@ -4,7 +4,10 @@
 #include "Globals.h"
 #include "Bullet.h"
 
-Bullets::Bullets(){}
+Bullets::Bullets()
+{
+    playerBullet = NULL;
+}
 
 void Bullets::newPlayerBullet(Tank *tank)
 {
@@ -39,15 +42,32 @@ void Bullets::newEnemyBullet(Alien *alien)
 void Bullets::kill(Bullet *bullet)
 {
     bullet->killBullet();
+    bullet = NULL;
 }
 
 bool Bullets::tick()
 {
-    playerBullet->tick();
-    // std::list<Bullet *>::iterator it;
-    // for(it = enemyBullets.begin(); it != enemyBullets.end();it++)
-    // {
-    //     (*it)->tick();
-    // }
+    if(playerBullet != NULL)
+    {
+        playerBullet->tick();
+        if(!playerBullet->isAlive())
+        {
+            playerBullet = NULL;
+        }
+    }
+    
+    for (auto alienBullet :enemyBullets)
+    {
+        if(alienBullet != NULL)
+        {
+            alienBullet->tick();
+            if(!alienBullet->isAlive())
+            {
+                alienBullet = NULL;
+            }
+        }
+    }
+
+
     return true;
 }

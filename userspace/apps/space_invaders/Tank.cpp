@@ -33,9 +33,8 @@ bool Tank::tick(uint8_t btn) {
             else if (btn == MOVE_RIGHT && x < GRAPHICS_WIDTH - getWidth() - 1 && tickCnt >= tickMax) {
                 move(Globals::getSprites().getTank(SPRITE_TANK), TANK_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
-                //std::cout << "Right" << std::endl;
             }
-            else if (btn == FIRE) {
+            else if (btn == FIRE && Globals::getBullets().getPlayerBullet() == NULL) {
                 Globals::getBullets().newPlayerBullet(this);
                 
                 //std::cout << "Fire" << std::endl;

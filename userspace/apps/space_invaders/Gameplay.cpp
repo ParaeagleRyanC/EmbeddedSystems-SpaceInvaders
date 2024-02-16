@@ -24,6 +24,7 @@ static uint8_t button;
 static uint16_t debounceTimer = 0;
 static uint16_t fastIncDecTimer = 0;
 static uint8_t nextBtnPresses = 0;
+static uint16_t alienFireTimer = 0;
 bool canMoveTank = false;
 
 Gameplay::Gameplay()
@@ -82,9 +83,11 @@ void Gameplay::tick()
     debounceTimer += TEN_MS;
     clockTimer++;
     secondsTimer = (clockTimer * 0.05);// SYSTEM_FIT_PERIOD_SECONDS);
+    alienFireTimer++;
 
     Globals::getUFO().tick();
-    //Globals::getBullets().tick();
+    Globals::getBullets().tick();
+    aliens->generateRandomFireDelay();
 
     //this is the block for the tank
     if (debounceTimer == DEBOUNCED_MS) {
@@ -112,6 +115,12 @@ void Gameplay::tick()
     }
 
     secondsTimerD1 = secondsTimer;
+
+    //decide when to fire the alien bullets
+    if(alienFireTimer >= aliens->)
+    
+
+
 }
 
 void Gameplay::buttons_isr()

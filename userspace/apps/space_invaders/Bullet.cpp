@@ -11,7 +11,8 @@ Bullet::Bullet(Tank *tank) :
                 BULLET_SIZE,{255, 255, 255}),
     usingSprite1(true),
     playerBullet(true),
-    sprite1(Globals::getSprites().getBullet(SPRITE_BULLET_TANK))
+    sprite1(Globals::getSprites().getBullet(SPRITE_BULLET_TANK)),
+    sprite2(Globals::getSprites().getBullet(SPRITE_BULLET_TANK))
 {}
 
 Bullet::Bullet(Alien *alien, Sprite *sprite1, Sprite *sprite2) : 
@@ -24,25 +25,37 @@ Bullet::Bullet(Alien *alien, Sprite *sprite1, Sprite *sprite2) :
 {}
 
 bool Bullet::tick()
-{
-    // bool flag = this->isAlive();
-    // // std::cout << flag << std::endl;
-    std::cout << "boo" << std::endl;
-    if(this->isAlive())
-    {
-        std::cout << "we on the inside" << std::endl;
-        this->kill();
+{    
+    //do these operations for the player bullet
+    if(playerBullet){
+        if(this->isAlive() && this->getY() <= 10)
+        {
+            this->kill();
+        }
+        if(usingSprite1 && this->isAlive())
+        {
+            this->move(sprite1,0,-2);
+        }
     }
-    std::cout << "Getting there" << std::endl;
-    if(usingSprite1 && this->isAlive())
+    //do these operations for the alien bullets
+    else
     {
-        this->move(sprite1,-1,-1);
+        if(this->isAlive() && this->getY() >= GRAPHICS_HEIGHT-10)
+        {
+            this->kill();
+        }
+        if(usingSprite1 && this->isAlive())
+        {
+            this->move(sprite1,0,2);
+            usingSprite1 = !usingSprite1;
+        }
+        else if (!usingSprite1 && this->isAlive())
+        {
+            this->move(sprite2,0,2);
+            usingSprite1 = !usingSprite1;
+        }
+        
     }
-    else if (!usingSprite1 && this->isAlive())
-    {
-        this->move(sprite2,-1,-1);
-    }
-    std::cout << "Getting everywhere" << std::endl;
     return true;
 }
 
