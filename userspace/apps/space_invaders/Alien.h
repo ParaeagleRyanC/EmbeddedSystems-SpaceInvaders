@@ -35,6 +35,7 @@ public:
   // Trigger the alien to explode
   void explode();
   bool isExploding() { return exploding; }
+  void resetExploding();
 };
 
 #endif /* ALIEN_H */

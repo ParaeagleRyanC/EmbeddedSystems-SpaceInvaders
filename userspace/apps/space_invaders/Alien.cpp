@@ -35,5 +35,13 @@ void Alien::moveDown()
 
 void Alien::explode()
 {
-    return;
+    // Explode the alien
+    exploding = true;
+    // Kill the alien
+    GameObject::kill();
+    // Draw the alien as a blank space ONCE
+}
+
+void Alien::resetExploding() {
+    exploding = false;
 }

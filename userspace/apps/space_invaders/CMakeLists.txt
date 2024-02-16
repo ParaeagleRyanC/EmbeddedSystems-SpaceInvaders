@@ -21,8 +21,8 @@ add_executable(space_invaders
     Tank.cpp
     UFO.cpp
     
-    # Bullets.cpp
-    # Bullet.cpp
+    Bullets.cpp
+    Bullet.cpp
 
     Aliens.cpp
     Alien.cpp

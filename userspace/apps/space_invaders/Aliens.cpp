@@ -1,5 +1,9 @@
 #include "Aliens.h"
+#include "Alien.h"
 #include "Globals.h"
+#include "config.h"
+#include "system.h"
+#include "GameObject.h"
 
 #include <time.h>
 
@@ -95,16 +99,23 @@ void Aliens::updateMovingDirection() {
 // Tick the alien group, and return whether something moved.
 bool Aliens::tick() {
     updateMovingDirection();
-    for(int i = 0; i < 5; i++)
-    {
+    for(int i = 0; i < 5; i++) {
         std::vector<Alien *> tempAlienRow = this->aliens.at(i);
-        for (int j = 0; j < 11; j++)
-        {
-            if(movingLeft){tempAlienRow.at(j)->moveLeft();}
-            else{tempAlienRow.at(j)->moveRight();}
-            if(goDown)
-            {
-                tempAlienRow.at(j)->moveDown();
+        for (int j = 0; j < 11; j++) {
+            // Draw the explosion if the alien is exploding and then set it to not exploding
+            if(tempAlienRow[j]->isExploding()) {
+                // Change movement numbers if you want the explosion to be in line with the aliens
+                tempAlienRow[j]->move(Globals::getSprites().getAlienExplosion(), 0, 0);
+                // Set exploding to false
+                tempAlienRow[j]->resetExploding();
+            }
+            // Only draw and move the alien if it is alive
+            else if(tempAlienRow[j]->isAlive()) {
+                if(movingLeft){tempAlienRow[j]->moveLeft();}
+                else{tempAlienRow[j]->moveRight();}
+                if(goDown) {
+                    tempAlienRow[j]->moveDown();
+                }
             }
         }
     }
@@ -116,23 +127,25 @@ bool Aliens::tick() {
 // bullet and alien when they are overlapping.
 void Aliens::checkCollisions() {
     // Loop through the vector of aliens
-    for (const auto& alien : aliens) {
-        // Only check collisions for alive aliens
-        if (alien.isAlive() && alien.isOverlapping(Globals::bullets.getPlayerBullet())) {
-            bullets.getPlayerBullet().kill();
-            // MAYBE DONT USE gameobject.kill FOR THE ALIEN BECAUSE WE NEED TO EXPLODE IT FIRST
-            // CALL KILL IN THE EXPLODE FUNCTION
-            alien.kill();
+    // for (const auto& alien : aliens) {
+    for(int i = 0; i < 5; i++) {
+        std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+        for (int j = 0; j < 11; j++) {
+            // Only check collisions for alive aliens
+            if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(Globals::getBullets().getPlayerBullet())) {
+                Globals::getBullets().getPlayerBullet().kill();
+                tempAlienRow[j]->explode();
 
-            // May need to:
-            // Make it so that only alive aliens are drawn
-            // Make hit aliens have the explode sprite for ony one tick (check alien tick speed)
-            //      explode() in alien.cpp
-            // Resurrect all aliens at a new round
+                // May need to:
+                // Make it so that only alive aliens are drawn
+                // Make hit aliens have the explode sprite for ony one tick (check alien tick speed)
+                //      explode() in alien.cpp
+                // Resurrect all aliens at a new round
 
-            // Need to implement bullets for the tank (ryan might be working on that)
-            //      Cant test otherwise
-            // Test tank explosions
+                // Need to implement bullets for the tank (ryan might be working on that)
+                //      Cant test otherwise
+                // Test tank explosions
+            }
         }
     }
 }
@@ -140,7 +153,7 @@ void Aliens::checkCollisions() {
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
-    srand (time(NULL));
-    uint32_t numSecs = rand() % (ALIENS_BULLET_MAX_WAIT_SECONDS-ALIENS_BULLET_MIN_WAIT_SECONDS) + ALIENS_BULLET_MIN_WAIT_SECONDS;
-    fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
+    // srand (time(NULL));
+    // uint32_t numSecs = rand() % (ALIENS_BULLET_MAX_WAIT_SECONDS-ALIENS_BULLET_MIN_WAIT_SECONDS) + ALIENS_BULLET_MIN_WAIT_SECONDS;
+    // fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
 }

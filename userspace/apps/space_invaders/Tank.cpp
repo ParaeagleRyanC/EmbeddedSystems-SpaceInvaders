@@ -54,9 +54,9 @@ bool Tank::tick(uint8_t btn) {
 
 // Check for collisions between alien bullets and the tank
 void Tank::checkCollisions() {
-    if(isOverlapping()) {
-        Tank::kill();
-    }
+    // if(GameObject::isOverlapping()) {
+    //     Tank::kill();
+    // }
 }
 
 // Kill the tank.  This should flag the explosion (but don't call
