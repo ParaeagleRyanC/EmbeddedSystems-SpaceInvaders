@@ -14,8 +14,6 @@ Tank::Tank() : GameObject(Globals::getSprites().getTank(SPRITE_TANK), 0, TANK_Y,
 bool Tank::tick(uint8_t btn) {
     //Increase tick count
     tickCnt++;
-    // printf("Tick Count: %d\n", tickCnt);
-    // printf("Max Count: %d\n", tickMax);
 
     switch (state) {
         // Tank Alive State
@@ -33,11 +31,6 @@ bool Tank::tick(uint8_t btn) {
                 move(Globals::getSprites().getTank(SPRITE_TANK_EXPLOSION1), 0, 0);
                 state = TANK_STATE_DYING1;
             }
-            // if (tickCnt == tickMax) {
-            //     tickCnt = 0;
-            //     if (btn == MOVE_LEFT && x > 0) move(Globals::getSprites().getTank(SPRITE_TANK), -1, 0);
-            //     else if (btn == MOVE_RIGHT && x < 590) move(Globals::getSprites().getTank(SPRITE_TANK), 1, 0);
-            // }
             break;
         // Tank Dying State 1
         case TANK_STATE_DYING1:
@@ -61,9 +54,9 @@ bool Tank::tick(uint8_t btn) {
 
 // Check for collisions between alien bullets and the tank
 void Tank::checkCollisions() {
-    // if(GameObject::isOverlapping()) {
-    //     Tank::kill();
-    // }
+    if(isOverlapping()) {
+        Tank::kill();
+    }
 }
 
 // Kill the tank.  This should flag the explosion (but don't call

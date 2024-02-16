@@ -1,6 +1,8 @@
 #include "Aliens.h"
 #include "Globals.h"
 
+#include <time.h>
+
 static bool goDown = false;
 
 Aliens::Aliens() {
@@ -113,11 +115,32 @@ bool Aliens::tick() {
 // Check for collisions between player bullet and aliens, killing player
 // bullet and alien when they are overlapping.
 void Aliens::checkCollisions() {
+    // Loop through the vector of aliens
+    for (const auto& alien : aliens) {
+        // Only check collisions for alive aliens
+        if (alien.isAlive() && alien.isOverlapping(Globals::bullets.getPlayerBullet())) {
+            bullets.getPlayerBullet().kill();
+            // MAYBE DONT USE gameobject.kill FOR THE ALIEN BECAUSE WE NEED TO EXPLODE IT FIRST
+            // CALL KILL IN THE EXPLODE FUNCTION
+            alien.kill();
 
+            // May need to:
+            // Make it so that only alive aliens are drawn
+            // Make hit aliens have the explode sprite for ony one tick (check alien tick speed)
+            //      explode() in alien.cpp
+            // Resurrect all aliens at a new round
+
+            // Need to implement bullets for the tank (ryan might be working on that)
+            //      Cant test otherwise
+            // Test tank explosions
+        }
+    }
 }
 
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
-
+    srand (time(NULL));
+    uint32_t numSecs = rand() % (ALIENS_BULLET_MAX_WAIT_SECONDS-ALIENS_BULLET_MIN_WAIT_SECONDS) + ALIENS_BULLET_MIN_WAIT_SECONDS;
+    fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
 }
