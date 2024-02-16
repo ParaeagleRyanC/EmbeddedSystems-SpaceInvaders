@@ -26,7 +26,6 @@ protected:
   Sprite *sprite;
 
   // Bring object back to life.  Make alive and redraw.
-  void resurrect();
 
 public:
   // Erase and redraw an object, at a new location and/or with a new sprite.
@@ -64,6 +63,8 @@ public:
   // Check if this object is overlapping a given object.  This can be used to
   // handle all collisions in the game.
   bool isOverlapping(GameObject *object);
+
+  void resurrect();
 };
 
 #endif /* GAMEOBJECT_H */

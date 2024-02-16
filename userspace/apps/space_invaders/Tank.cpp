@@ -1,7 +1,12 @@
 #include "Tank.h"
 #include "Globals.h"
+#include "Bullet.h"
 #include "system.h"
 #include "config.h"
+#include <iostream>
+#include "buttons/buttons.h"
+
+#define BUTTONS_1_MASK 0x2
 
 // Player tank (initialized to starting location)
 // Tank::Tank() : GameObject(Globals::getSprites().getTank(SPRITE_TANK), 0, 450, 2, Globals::getColorGreen()) {
@@ -20,6 +25,7 @@ bool Tank::tick(uint8_t btn) {
     switch (state) {
         // Tank Alive State
         case TANK_STATE_ALIVE:
+            //std::cout << btn << std::endl;
             if (btn == MOVE_LEFT && x > 0 && tickCnt >= tickMax) {
                 move(Globals::getSprites().getTank(SPRITE_TANK), -TANK_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
@@ -27,6 +33,12 @@ bool Tank::tick(uint8_t btn) {
             else if (btn == MOVE_RIGHT && x < GRAPHICS_WIDTH - getWidth() - 1 && tickCnt >= tickMax) {
                 move(Globals::getSprites().getTank(SPRITE_TANK), TANK_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
+                //std::cout << "Right" << std::endl;
+            }
+            else if (btn == FIRE) {
+                Globals::getBullets().newPlayerBullet(this);
+                
+                //std::cout << "Fire" << std::endl;
             }
             else if (flagExplosion) {
                 flagExplosion = false;

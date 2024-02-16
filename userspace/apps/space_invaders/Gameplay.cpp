@@ -8,6 +8,9 @@
 #include "switches/switches.h"
 #include "intc/intc.h"
 #include "UFO.h"
+#include "Bullets.h"
+#include "Bullet.h"
+
 
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
@@ -28,6 +31,8 @@ Gameplay::Gameplay()
     this->tank = new Tank();
     this->aliens = new Aliens();
     aliens->initialize();
+
+    this->bullets = new Bullets();
 
     Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
 
@@ -79,12 +84,14 @@ void Gameplay::tick()
     secondsTimer = (clockTimer * 0.05);// SYSTEM_FIT_PERIOD_SECONDS);
 
     Globals::getUFO().tick();
+    //Globals::getBullets().tick();
 
     //this is the block for the tank
     if (debounceTimer == DEBOUNCED_MS) {
         canMoveTank = true;
         if (buttons == BUTTONS_2_MASK) button = 2;
         else if (buttons == BUTTONS_3_MASK) button = 3;
+        else if (buttons == BUTTONS_1_MASK) button = 1;
     }
 
     // one press one move
