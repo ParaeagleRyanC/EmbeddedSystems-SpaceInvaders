@@ -10,11 +10,22 @@ Bunker::Bunker(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBun
     this->x = x,
     this->y = y;
     size = BUNKER_SIZE;
-    // do something with the bunkerBlocks vector
+
+    uint16_t xPos;
+    uint16_t yPos;
+    for (int i = 0; i < 4; i++) {
+        xPos = x + 6 * i;
+        for (int j = 0; j < 3; j++) {
+            yPos = y + 6 * j;
+            bunkerBlocks.push_back(new BunkerBlock(xPos, yPos));
+        }
+        yPos = y;
+    }
 }
 
 // Check collision between both player and enemy bullets and the bunker.
 bool Bunker::checkBulletCollision(Bullet *bullet) {
     // Do SOMETHING
+    // iter
     return false;
 }

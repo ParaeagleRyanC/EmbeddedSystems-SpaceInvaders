@@ -17,12 +17,12 @@ add_executable(space_invaders
     Gameplay.cpp
     Bunker.cpp
     Bunkers.cpp
-    # BunkerBlock.cpp
+    BunkerBlock.cpp
     Tank.cpp
     UFO.cpp
     
-    # Bullets.cpp
-    # Bullet.cpp
+    Bullets.cpp
+    Bullet.cpp
 
     Aliens.cpp
     Alien.cpp
