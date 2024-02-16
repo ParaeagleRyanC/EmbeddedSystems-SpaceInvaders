@@ -127,33 +127,47 @@ bool Aliens::tick() {
 // bullet and alien when they are overlapping.
 void Aliens::checkCollisions() {
     // Loop through the vector of aliens
-    // for (const auto& alien : aliens) {
     for(int i = 0; i < 5; i++) {
         std::vector<Alien *> tempAlienRow = this->aliens.at(i);
         for (int j = 0; j < 11; j++) {
             // Only check collisions for alive aliens
-            if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(Globals::getBullets().getPlayerBullet())) {
-                Globals::getBullets().getPlayerBullet().kill();
-                tempAlienRow[j]->explode();
-
-                // May need to:
-                // Make it so that only alive aliens are drawn
-                // Make hit aliens have the explode sprite for ony one tick (check alien tick speed)
-                //      explode() in alien.cpp
-                // Resurrect all aliens at a new round
-
-                // Need to implement bullets for the tank (ryan might be working on that)
-                //      Cant test otherwise
-                // Test tank explosions
-            }
+            // if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(Globals::getBullets().getPlayerBullet())) {
+            //     Globals::getBullets().getPlayerBullet().kill();
+            //     tempAlienRow[j]->explode();
+            // }
         }
     }
 }
 
+// TODO: TEST THAT THIS DOES WHAT I THINK IT DOES
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
-    // srand (time(NULL));
-    // uint32_t numSecs = rand() % (ALIENS_BULLET_MAX_WAIT_SECONDS-ALIENS_BULLET_MIN_WAIT_SECONDS) + ALIENS_BULLET_MIN_WAIT_SECONDS;
-    // fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
+    srand (time(NULL));
+    //casting might not work but test first
+    uint32_t numSecs = rand() % (static_cast<int>(ALIENS_BULLET_MAX_WAIT_SECONDS) - static_cast<int>(ALIENS_BULLET_MIN_WAIT_SECONDS)) + ALIENS_BULLET_MIN_WAIT_SECONDS;
+    fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
 }
+
+
+// Test:
+// generateRandomFireDelay()
+// checkCollisions()
+// Alien moving after getting hit
+// Tank explosions (already implemented)
+
+// Implement:
+// New aliens for each round
+    // Resurrect all aliens at a new round
+    // Reset their positions
+    // Draw them again
+
+// UFO explosions
+// -Erasing the explosion all the way
+// -Not showing UFO after explosion is over
+
+// Scores
+
+// Alien bullets
+
+// Bullets for the tank. Cant test otherwise

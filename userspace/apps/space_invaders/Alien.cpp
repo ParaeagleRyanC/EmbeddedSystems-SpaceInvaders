@@ -39,7 +39,7 @@ void Alien::explode()
     exploding = true;
     // Kill the alien
     GameObject::kill();
-    // Draw the alien as a blank space ONCE
+    // Draw the alien as a blank space ONCE?
 }
 
 void Alien::resetExploding() {

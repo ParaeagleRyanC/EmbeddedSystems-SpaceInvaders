@@ -99,6 +99,8 @@ void Gameplay::tick()
         fastIncDecTimer = 0;
     }
 
+    // Why are we only ticking once a second?
+    // What if we handle tick counting inside the aliens file instead and use ALIENS_MOVE_DELAY_SECONDS from the config file?
     if(secondsTimer > secondsTimerD1)
     {
         aliens->tick();
