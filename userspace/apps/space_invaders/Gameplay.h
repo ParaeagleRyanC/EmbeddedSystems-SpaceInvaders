@@ -6,6 +6,7 @@ class Tank;
 class Aliens;
 class UFO;
 class Bullets;
+class HighScores;
 
 // This class manages the normal gameplay of the game (but not the
 // gameover/highscores screen)
@@ -19,6 +20,7 @@ private:
   Aliens *aliens;
   UFO *ufo;
   Bullets *bullets;
+  HighScores *highScores;
 
   // Check all collisions by calling all appropriate collision functions.  This
   // only needs to be done if some game object moved during the last tick.
@@ -30,6 +32,9 @@ public:
 
   // Tick the game
   void tick();
+
+  // Tick the high scores screen
+  void tickHighScores();
 
   void buttons_isr();
 

@@ -27,6 +27,8 @@ private:
   bool exploding;
 
 public:
+  bool eraseOnce;
+  
   // Move the alien left, right or down
   void moveLeft();
   void moveRight();

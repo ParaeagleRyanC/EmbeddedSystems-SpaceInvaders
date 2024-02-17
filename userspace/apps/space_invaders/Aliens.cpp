@@ -4,6 +4,7 @@
 #include "config.h"
 #include "system.h"
 #include "GameObject.h"
+#include "Bullet.h"
 
 #include <time.h>
 #include <random>
@@ -112,12 +113,28 @@ bool Aliens::tick() {
     if(secondsTimer > secondsTimerD1)
     {
         for(int i = 0; i < 5; i++)
-        {
+        { 
             std::vector<Alien *> tempAlienRow = this->aliens.at(i);
             for (int j = 0; j < 11; j++)
             {
-                if(movingLeft){tempAlienRow.at(j)->moveLeft();}
-                else{tempAlienRow.at(j)->moveRight();}
+                // Draw the explosion if the alien is exploding and then set it to not exploding
+                if(tempAlienRow[j]->isExploding()) {
+                    // Change movement numbers if you want the explosion to be in line with the aliens
+                    tempAlienRow[j]->move(Globals::getSprites().getAlienExplosion(), 0, 0);
+                    // Set exploding to false
+                    tempAlienRow[j]->resetExploding();
+                    tempAlienRow[j]->eraseOnce = true;
+                }
+
+                // Only draw and move the alien if it is alive
+                else if(tempAlienRow[j]->isAlive()) {
+                    if(movingLeft){tempAlienRow.at(j)->moveLeft();}
+                    else{tempAlienRow.at(j)->moveRight();}
+                }
+                else if(tempAlienRow[j]->eraseOnce){
+                    tempAlienRow[j]->eraseExplosion();
+                    tempAlienRow[j]->eraseOnce = false;
+                }
             }
         }
     }
@@ -129,12 +146,15 @@ bool Aliens::tick() {
             std::vector<Alien *> tempAlienRow = this->aliens.at(i);
             for (int j = 0; j < 11; j++)
             {
-                tempAlienRow.at(j)->moveDown();
+                // Only move down if alive
+                if(tempAlienRow[j]->isAlive()) {
+                    tempAlienRow.at(j)->moveDown();
+                }
             }
         }
     }
 
-    //Manage when the aliens shoot bullets
+    // Manage when the aliens shoot bullets
     if(alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4)
     {
         std::random_device rd;
@@ -164,22 +184,36 @@ bool Aliens::tick() {
     goDown = false;
     secondsTimerD1 = secondsTimer;
 
-
     return false;
 }
 
 // Check for collisions between player bullet and aliens, killing player
 // bullet and alien when they are overlapping.
 void Aliens::checkCollisions() {
+    // /exit loop if no flying player bullet 
+    if (Globals::getBullets().getPlayerBullet() == NULL) return;
+    
     // Loop through the vector of aliens
     for(int i = 0; i < 5; i++) {
-        std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+        std::vector<Alien*> tempAlienRow = this->aliens.at(i);
         for (int j = 0; j < 11; j++) {
             // Only check collisions for alive aliens
-            // if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(Globals::getBullets().getPlayerBullet())) {
-            //     Globals::getBullets().getPlayerBullet().kill();
-            //     tempAlienRow[j]->explode();
-            // }
+            auto bullet = Globals::getBullets().getPlayerBullet();
+            if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(bullet)) {
+                Globals::getBullets().kill(bullet);
+                tempAlienRow[j]->explode();
+
+                // Calculate score based on the type of alien that was killed
+                if(i == 0) {
+                    Globals::getScore().hitTopAlien();
+                }
+                else if(i == 1 || i == 2) {
+                    Globals::getScore().hitMidAlien();
+                }
+                else {
+                    Globals::getScore().hitBotAlien();
+                }
+            }
         }
     }
 }

@@ -2,9 +2,6 @@
 #include "Globals.h"
 #include "Bullet.h"
 
-
-
-
 // Create bunker at given x,y location. 
 // Make sure this calls the parent constructor.
 Bunker::Bunker(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBunker(), x, y, BUNKER_SIZE, Globals::getColorGreen()) {
@@ -33,6 +30,7 @@ bool Bunker::checkBulletCollision(Bullet *bullet) {
             bunkerBlock->inflictDamage();
             bunkerBlock->drawNoBackground();
             bullet->kill();
+            Globals::getBullets().decNumAlienBullets();
             return true;
         }
     }

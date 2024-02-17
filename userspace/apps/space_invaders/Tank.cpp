@@ -76,6 +76,7 @@ void Tank::checkCollisions() {
                 blt != Globals::getBullets().getEnemyBullets().end();) {
         if (this->isOverlapping(*blt)) {
             Globals::getBullets().kill(*blt);
+            Globals::getBullets().decNumAlienBullets();
             this->kill();
             blt--;
         }

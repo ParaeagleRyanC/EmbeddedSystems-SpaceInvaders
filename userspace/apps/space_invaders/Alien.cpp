@@ -8,7 +8,8 @@ Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y) :
     spriteIn(spriteIn), // Initialize member variables
     spriteOut(spriteOut),
     in(true),
-    exploding(false)
+    exploding(false),
+    eraseOnce(false)
 {
 }
 
