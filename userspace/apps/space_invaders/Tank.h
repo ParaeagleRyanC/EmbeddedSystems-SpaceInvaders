@@ -37,6 +37,8 @@ private:
   bool flagExplosion;
 
 public:
+  bool isTankHit() { return this-> flagExplosion; }
+
   // Tick the tank
   bool tick(uint8_t btn);
 

@@ -113,6 +113,9 @@ void Gameplay::tick()
         fastIncDecTimer = 0;
     }
 
+    // tick if tank got hit
+    if (tank->isTankHit()) tank->tick(0);
+
     aliens->tick();
 
     checkCollisions();

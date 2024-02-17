@@ -12,7 +12,7 @@
 // Tank::Tank() : GameObject(Globals::getSprites().getTank(SPRITE_TANK), 0, 450, 2, Globals::getColorGreen()) {
 Tank::Tank() : GameObject(Globals::getSprites().getTank(SPRITE_TANK), 0, TANK_Y, TANK_SIZE, Globals::getColorGreen()), 
                 tickCnt(0), tickMax(TANK_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS),
-                deathTickMax(TANK_DEATH_DURATION_SECONDS / SYSTEM_FIT_PERIOD_SECONDS),
+                deathTickMax(TANK_DEATH_DURATION_SECONDS / 0.02),
                 state(TANK_STATE_ALIVE), flagExplosion(false) {}
 
 // Tick the tank
@@ -40,7 +40,8 @@ bool Tank::tick(uint8_t btn) {
                 //std::cout << "Fire" << std::endl;
             }
             else if (flagExplosion) {
-                flagExplosion = false;
+                tickCnt = 0;
+                Globals::getLives().loseALife();
                 move(Globals::getSprites().getTank(SPRITE_TANK_EXPLOSION1), 0, 0);
                 state = TANK_STATE_DYING1;
             }
@@ -62,7 +63,9 @@ bool Tank::tick(uint8_t btn) {
         case TANK_STATE_DYING2:
             if(tickCnt >= deathTickMax) {
                 tickCnt = 0;
+                move(Globals::getSprites().getTank(SPRITE_TANK), -x, 0);
                 state = TANK_STATE_ALIVE;
+                flagExplosion = false;
             }
             break;
         
