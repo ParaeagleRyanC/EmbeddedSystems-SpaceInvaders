@@ -24,21 +24,20 @@ void Bunkers::checkCollisions() {
         // check if player bullet hits the bunker
         if (Globals::getBullets().getPlayerBullet() != nullptr)
             if (bunkers[i]->checkBulletCollision(Globals::getBullets().getPlayerBullet())) {
-               // std::cout << "x: " << bunkers[i]->getX() << " y: " << bunkers[i]->getY() << std::endl;
                 Globals::getBullets().kill(Globals::getBullets().getPlayerBullet());
             }
         
-        //exit loop if no flying enemy bullet 
-        // if (Globals::getBullets().getEnemyBullets().empty()) return;
+        // /exit loop if no flying enemy bullet 
+        if (Globals::getBullets().getEnemyBullets().empty()) return;
 
-        // // loop through each live bullet and check for collision with the bunker
-        // for (auto blt = Globals::getBullets().getEnemyBullets().begin();
-        //           blt != Globals::getBullets().getEnemyBullets().end();) {
-        //     if (bunkers[i]->checkBulletCollision(*blt)) {
-        //         Globals::getBullets().kill(*blt);
-        //         blt--;
-        //     }
-        //     blt++;
-        // }
+        // loop through each live bullet and check for collision with the bunker
+        for (auto blt = Globals::getBullets().getEnemyBullets().begin();
+                  blt != Globals::getBullets().getEnemyBullets().end();) {
+            if (bunkers[i]->checkBulletCollision(*blt)) {
+                Globals::getBullets().kill(*blt);
+                blt--;
+            }
+            blt++;
+        }
     }
 }

@@ -5,7 +5,6 @@
 // Make sure this calls the parent constructor.
 BunkerBlock::BunkerBlock(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBunkerDmg(0), x, y, BUNKER_SIZE, Globals::getBackgroundColor()) {
     dmgLevel = 0;
-    // std::cout << "x: " << x << " y: " << y  << std::endl;
 }
 
 // Increase the damage level, and draw the appropriate damage.

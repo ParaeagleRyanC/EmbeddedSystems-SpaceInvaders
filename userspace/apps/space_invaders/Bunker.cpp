@@ -15,12 +15,13 @@ Bunker::Bunker(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBun
     uint16_t xPos;
     uint16_t yPos;
     for (int i = 0; i < 4; i++) {
-        xPos = x + 6 * i;
+        xPos = x + 6 * BUNKER_SIZE * i;
         for (int j = 0; j < 3; j++) {
-            yPos = y + 6 * j;
+            // skip center empty part
+            if (i == 1 && j == 2 || i == 2 && j == 2) continue;
+            yPos = y + 6 * BUNKER_SIZE * j;
             bunkerBlocks.push_back(new BunkerBlock(xPos, yPos));
         }
-        yPos = y;
     }
 }
 
@@ -28,9 +29,7 @@ Bunker::Bunker(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBun
 bool Bunker::checkBulletCollision(Bullet *bullet) {
     if (!bullet->isAlive()) return false;
     for (auto bunkerBlock : bunkerBlocks) {
-        // /std::cout << "blockx: " << bunkerBlock->getX() << " blocky: " << bunkerBlock->getY() << std::endl;
         if (bunkerBlock->isAlive() && bunkerBlock->isOverlapping(bullet)) {
-        //std::cout << "bulletx: " << bullet->getX() << " bullety: " << bullet->getY() << std::endl;
             bunkerBlock->inflictDamage();
             bunkerBlock->drawNoBackground();
             bullet->kill();

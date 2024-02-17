@@ -82,6 +82,7 @@ void Gameplay::drawInit()
 // only needs to be done if some game object moved during the last tick.
 void Gameplay::checkCollisions() {
     Globals::getBunkers().checkCollisions();
+    tank->checkCollisions();
 }
 
 void Gameplay::tick()
@@ -113,6 +114,8 @@ void Gameplay::tick()
     }
 
     aliens->tick();
+
+    checkCollisions();
 
 }
 

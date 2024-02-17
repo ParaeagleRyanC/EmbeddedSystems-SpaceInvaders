@@ -74,12 +74,6 @@ bool GameObject::isOverlapping(GameObject *object) {
     uint16_t object2Top = object->getY();
     uint16_t object2Bottom = object->getY() + object->getHeight();
 
-    // std::cout << "Object1Left: " << object1Left << " Object1Right: " << object1Right << 
-    //             " Object1Top: " << object1Top << " Object1Bottom: " << object1Bottom << std::endl << std::endl;
-
-    // std::cout << "Object2Left: " << object2Left << " Object2Right: " << object2Right << 
-    //             " Object2Top: " << object2Top << " Object2Bottom: " << object2Bottom << std::endl << std::endl;
-
     if (isOverlapped(object1Left, object2Left, object2Right) || 
         isOverlapped(object1Right, object2Left, object2Right))
         if (isOverlapped(object1Top, object2Top, object2Bottom) || 
