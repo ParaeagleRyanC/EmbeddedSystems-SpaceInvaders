@@ -28,7 +28,7 @@ Bunker::Bunker(uint16_t x, uint16_t y) : GameObject(Globals::getSprites().getBun
 bool Bunker::checkBulletCollision(Bullet *bullet) {
     if (!bullet->isAlive()) return false;
     for (auto bunkerBlock : bunkerBlocks) {
-        std::cout << "blockx: " << bunkerBlock->getX() << " blocky: " << bunkerBlock->getY() << std::endl;
+        // /std::cout << "blockx: " << bunkerBlock->getX() << " blocky: " << bunkerBlock->getY() << std::endl;
         if (bunkerBlock->isAlive() && bunkerBlock->isOverlapping(bullet)) {
         //std::cout << "bulletx: " << bullet->getX() << " bullety: " << bullet->getY() << std::endl;
             bunkerBlock->inflictDamage();

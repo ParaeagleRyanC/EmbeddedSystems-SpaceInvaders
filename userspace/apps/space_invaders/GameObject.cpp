@@ -18,7 +18,10 @@ GameObject::GameObject(Sprite *sprite, uint16_t x, uint16_t y, uint8_t size, rgb
 
 void GameObject::draw()
 {
-    Globals::getGraphics().drawSprite(sprite, x, y, size, color, Globals::getBackgroundColor());
+    if(alive)
+    {
+        Globals::getGraphics().drawSprite(sprite, x, y, size, color, Globals::getBackgroundColor());
+    }
 }
 
 void GameObject::erase()

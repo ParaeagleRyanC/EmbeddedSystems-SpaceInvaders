@@ -47,6 +47,7 @@ void Bullets::kill(Bullet *bullet)
 
 bool Bullets::tick()
 {
+    //std::cout << numActiveEnemyBullets << std::endl;
     if(playerBullet != NULL)
     {
         playerBullet->tick();
@@ -56,14 +57,14 @@ bool Bullets::tick()
         }
     }
     
-    for (auto alienBullet :enemyBullets)
+    for (auto alienBullet : enemyBullets)
     {
         if(alienBullet != NULL)
         {
             alienBullet->tick();
             if(!alienBullet->isAlive())
             {
-                alienBullet = NULL;
+                this->kill(alienBullet);
             }
         }
     }

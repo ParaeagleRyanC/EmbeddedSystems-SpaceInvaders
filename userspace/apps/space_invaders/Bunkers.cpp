@@ -28,7 +28,7 @@ void Bunkers::checkCollisions() {
                 Globals::getBullets().kill(Globals::getBullets().getPlayerBullet());
             }
         
-        // exit loop if no flying enemy bullet 
+        //exit loop if no flying enemy bullet 
         // if (Globals::getBullets().getEnemyBullets().empty()) return;
 
         // // loop through each live bullet and check for collision with the bunker

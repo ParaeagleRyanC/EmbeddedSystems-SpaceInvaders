@@ -87,9 +87,6 @@ void Gameplay::checkCollisions() {
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
-    clockTimer++;
-    secondsTimer = (clockTimer * 0.05);// SYSTEM_FIT_PERIOD_SECONDS);
-    alienFireTimer++;
 
     Globals::getUFO().tick();
     Globals::getBullets().tick();
@@ -115,18 +112,7 @@ void Gameplay::tick()
         fastIncDecTimer = 0;
     }
 
-    if(secondsTimer > secondsTimerD1)
-    {
-        aliens->tick();
-    }
-
-    secondsTimerD1 = secondsTimer;
-
-    //decide when to fire the alien bullets
-    //if(alienFireTimer >= aliens->)
-    
-    checkCollisions();
-
+    aliens->tick();
 
 }
 
