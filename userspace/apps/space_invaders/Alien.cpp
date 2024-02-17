@@ -8,7 +8,8 @@ Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y) :
     spriteIn(spriteIn), // Initialize member variables
     spriteOut(spriteOut),
     in(true),
-    exploding(false)
+    exploding(false),
+    eraseOnce(false)
 {
 }
 
@@ -35,5 +36,13 @@ void Alien::moveDown()
 
 void Alien::explode()
 {
-    return;
+    // Explode the alien
+    exploding = true;
+    // Kill the alien
+    GameObject::kill();
+    // Draw the alien as a blank space ONCE?
+}
+
+void Alien::resetExploding() {
+    exploding = false;
 }

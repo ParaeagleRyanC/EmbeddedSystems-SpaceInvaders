@@ -27,6 +27,8 @@ private:
   bool exploding;
 
 public:
+  bool eraseOnce;
+  
   // Move the alien left, right or down
   void moveLeft();
   void moveRight();
@@ -35,6 +37,7 @@ public:
   // Trigger the alien to explode
   void explode();
   bool isExploding() { return exploding; }
+  void resetExploding();
 };
 
 #endif /* ALIEN_H */

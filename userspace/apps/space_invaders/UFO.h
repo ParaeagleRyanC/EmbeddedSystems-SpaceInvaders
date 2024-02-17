@@ -21,7 +21,7 @@ private:
   uint32_t hideTickMax;
 
   // UFO state
-  typedef enum { HIDDEN, MOVING } state_t;
+  typedef enum { HIDDEN, MOVING, EXPLODING } state_t;
   state_t state;
 
   // Used to indicate to state machine to kill the UFO

@@ -28,7 +28,7 @@ bool Bullet::tick()
 {    
     //do these operations for the player bullet
     if(playerBullet){
-        if(this->isAlive() && this->getY() <= 10)
+        if(this->isAlive() && this->getY() <= 20)
         {
             this->kill();
         }

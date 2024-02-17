@@ -39,6 +39,9 @@ public:
   // Erase the object
   void erase();
 
+  // Erase the object's explosion
+  void eraseExplosion();
+
   // Draw the object, but don't draw the background pixels (this is slower, but
   // is needed for the bunker damage)
   void drawNoBackground();

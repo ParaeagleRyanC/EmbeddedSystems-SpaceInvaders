@@ -2,8 +2,13 @@
 #include "config.h"
 #include "system.h"
 #include "Globals.h"
+#include "Bullet.h"
 
 #include <time.h>
+
+// **Explosion testing material. Delete once tested**
+uint8_t tempTickExplode = (UFO_MOVE_DELAY_SECONDS * 50 / SYSTEM_FIT_PERIOD_SECONDS);\
+uint8_t tempTickCnt = 0;
 
 // The flying UFO object
 UFO::UFO() : GameObject(Globals::getSprites().getUFO(), 0, UFO_Y, UFO_SIZE, Globals::getColorRed()),
@@ -27,9 +32,9 @@ bool UFO::tick() {
         case HIDDEN:
             if(tickCnt >= hideTickMax) {
                 // Respawn
-                if(!isAlive()) resurrect();
+                if(!isAlive()) this->resurrect();
                 // Reappear
-                else draw();
+                else this->draw();
                 tickCnt = 0;
                 state = MOVING;
             }
@@ -37,23 +42,46 @@ bool UFO::tick() {
 
         // Moving State
         case MOVING:
+            // **Explosion testing material.  Delete once tested**
+            // This also introduces a bug where if you shoot where the tank spawns, the ufo will explode when it is time to spawn BUT only after it has been killed once before...
+            // Use carefully
+            // tempTickCnt++;
+            // if(tempTickCnt >= tempTickExplode) {
+            //     flagKill = true;
+            // }
+
+
+
             // Move over more
             if(tickCnt >= moveTickMax) {
-                move(Globals::getSprites().getUFO(), UFO_MOVE_X_DISTANCE, 0);
+                this->move(Globals::getSprites().getUFO(), UFO_MOVE_X_DISTANCE, 0);
                 tickCnt = 0;
                 return true;
             }
             // Reach the end of the screen
             else if(getX() + getWidth() > GRAPHICS_WIDTH) {
-                move(Globals::getSprites().getUFO(), -getX(), 0);
-                erase();
-                checkCollisions();
+                this->move(Globals::getSprites().getUFO(), -getX(), 0);
+                this->erase();
                 state = HIDDEN;
             }
             // Get destroyed
             else if(flagKill) {
-                kill();
+                this->move(Globals::getSprites().getAlienExplosion(), 0, 0);
+                tickCnt = 0;
                 flagKill = false;
+                state = EXPLODING;
+            }
+            break;
+        // Exploding State
+        case EXPLODING:
+            // printf("Tick Count: %d/%d\n", tickCnt, (ALIENS_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS));
+            if(tickCnt >= (ALIENS_MOVE_DELAY_SECONDS / SYSTEM_FIT_PERIOD_SECONDS)) {
+                this->eraseExplosion();
+                this->kill();
+                this->move(Globals::getSprites().getUFO(), -getX(), 0);
+                this->erase();
+                tickCnt = 0;
+                state = HIDDEN;
             }
             break;
     }
@@ -62,7 +90,15 @@ bool UFO::tick() {
 
 // Check for collisions between the player bullet and the UFO
 void UFO::checkCollisions() {
-    // if(GameObject::isOverlapping()) {
-    //     flagKill = true;
-    // }
+    if (state == MOVING) {
+        // /exit loop if no flying player bullet 
+        if (Globals::getBullets().getPlayerBullet() == NULL) return;
+
+        auto bullet = Globals::getBullets().getPlayerBullet();
+        if (this->isOverlapping(bullet)) {
+            Globals::getBullets().kill(bullet);
+            flagKill = true;
+            Globals::getScore().hitSpaceship();
+        }
+    }
 }

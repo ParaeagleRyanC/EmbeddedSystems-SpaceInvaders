@@ -29,6 +29,11 @@ void GameObject::erase()
     Globals::getGraphics().drawSprite(sprite, x, y, size, Globals::getBackgroundColor(), Globals::getBackgroundColor());
 }
 
+void GameObject::eraseExplosion()
+{
+    Globals::getGraphics().drawSprite(Globals::getSprites().getAlienExplosion(), x, y, size, Globals::getBackgroundColor(), Globals::getBackgroundColor());
+}
+
 void GameObject::move(Sprite *newSprite, int16_t delta_x, int16_t delta_y)
 {
     this->erase();

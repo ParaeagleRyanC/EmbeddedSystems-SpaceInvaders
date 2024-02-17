@@ -10,6 +10,7 @@
 #include "UFO.h"
 #include "Bullets.h"
 #include "Bullet.h"
+#include "HighScores.h"
 
 
 #define DEBOUNCED_MS 30
@@ -26,6 +27,7 @@ static uint16_t fastIncDecTimer = 0;
 static uint8_t nextBtnPresses = 0;
 static uint16_t alienFireTimer = 0;
 bool canMoveTank = false;
+bool gameOver = false;
 
 Gameplay::Gameplay()
 {
@@ -83,6 +85,8 @@ void Gameplay::drawInit()
 void Gameplay::checkCollisions() {
     Globals::getBunkers().checkCollisions();
     tank->checkCollisions();
+    Globals::getUFO().checkCollisions();
+    aliens->checkCollisions();
 }
 
 void Gameplay::tick()
@@ -101,25 +105,43 @@ void Gameplay::tick()
         else if (buttons == BUTTONS_1_MASK) button = 1;
     }
 
-    // one press one move
-    if (canMoveTank) {
-        canMoveTank = false;
-        tank->tick(button);
+    if(gameOver) {
+        printf("Checkpoint B\n");
+        tickHighScores();
     }
-    // long press fast move
-    if (debounceTimer >= 500 && buttons) {
-        fastIncDecTimer += TEN_MS;
-        tank->tick(button);
-        fastIncDecTimer = 0;
+    else {
+        // one press one move
+        if (canMoveTank) {
+            canMoveTank = false;
+            tank->tick(button);
+        }
+        // long press fast move
+        if (debounceTimer >= 500 && buttons) {
+            fastIncDecTimer += TEN_MS;
+            tank->tick(button);
+            fastIncDecTimer = 0;
+        }
+
+        // tick if tank got hit
+        if (tank->isTankHit()) tank->tick(0);
+
+        aliens->tick();
+
+        checkCollisions();
+
+        if(Globals::getLives().isGameOver()) {
+            printf("Checkpoint A\n");
+            // This is where the seg faults begin
+            *this->highScores = HighScores(Globals::getScore().getScore());
+            gameOver = true;
+        }
     }
+}
 
-    // tick if tank got hit
-    if (tank->isTankHit()) tank->tick(0);
-
-    aliens->tick();
-
-    checkCollisions();
-
+void Gameplay::tickHighScores()
+{
+    printf("Checkpoint C\n");
+    highScores->tickUserEntry(button);
 }
 
 void Gameplay::buttons_isr()
@@ -134,3 +156,9 @@ void Gameplay::end_game()
     intc_exit();
     buttons_exit();
 }
+
+// Implement:
+// New aliens for each round
+    // Resurrect all aliens at a new round
+    // Reset their positions
+    // Draw them again
