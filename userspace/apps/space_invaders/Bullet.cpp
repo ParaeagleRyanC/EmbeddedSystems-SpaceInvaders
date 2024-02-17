@@ -16,7 +16,7 @@ Bullet::Bullet(Tank *tank) :
 {}
 
 Bullet::Bullet(Alien *alien, Sprite *sprite1, Sprite *sprite2) : 
-    GameObject(sprite1,alien->getMidX(), alien->getY(),
+    GameObject(sprite1,alien->getMidX(), alien->getY()+15,
                 BULLET_SIZE,{255, 255, 255}),
     usingSprite1(true),
     playerBullet(false),
