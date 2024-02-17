@@ -139,7 +139,6 @@ void Aliens::checkCollisions() {
     }
 }
 
-// TODO: TEST THAT THIS DOES WHAT I THINK IT DOES
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
