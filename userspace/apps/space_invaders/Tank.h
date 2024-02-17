@@ -5,6 +5,7 @@
 
 #include "GameObject.h"
 
+#define FIRE 1
 #define MOVE_RIGHT 2
 #define MOVE_LEFT 3
 

@@ -8,6 +8,9 @@
 #include "switches/switches.h"
 #include "intc/intc.h"
 #include "UFO.h"
+#include "Bullets.h"
+#include "Bullet.h"
+
 
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
@@ -21,6 +24,7 @@ static uint8_t button;
 static uint16_t debounceTimer = 0;
 static uint16_t fastIncDecTimer = 0;
 static uint8_t nextBtnPresses = 0;
+static uint16_t alienFireTimer = 0;
 bool canMoveTank = false;
 
 Gameplay::Gameplay()
@@ -28,6 +32,8 @@ Gameplay::Gameplay()
     this->tank = new Tank();
     this->aliens = new Aliens();
     aliens->initialize();
+
+    this->bullets = new Bullets();
 
     Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
 
@@ -72,19 +78,29 @@ void Gameplay::drawInit()
     aliens->draw();
 }
 
+// Check all collisions by calling all appropriate collision functions.  This
+// only needs to be done if some game object moved during the last tick.
+void Gameplay::checkCollisions() {
+    Globals::getBunkers().checkCollisions();
+}
+
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
     clockTimer++;
     secondsTimer = (clockTimer * 0.05);// SYSTEM_FIT_PERIOD_SECONDS);
+    alienFireTimer++;
 
     Globals::getUFO().tick();
+    Globals::getBullets().tick();
+    aliens->generateRandomFireDelay();
 
     //this is the block for the tank
     if (debounceTimer == DEBOUNCED_MS) {
         canMoveTank = true;
         if (buttons == BUTTONS_2_MASK) button = 2;
         else if (buttons == BUTTONS_3_MASK) button = 3;
+        else if (buttons == BUTTONS_1_MASK) button = 1;
     }
 
     // one press one move
@@ -105,6 +121,13 @@ void Gameplay::tick()
     }
 
     secondsTimerD1 = secondsTimer;
+
+    //decide when to fire the alien bullets
+    //if(alienFireTimer >= aliens->)
+    
+    checkCollisions();
+
+
 }
 
 void Gameplay::buttons_isr()

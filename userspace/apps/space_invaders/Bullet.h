@@ -37,7 +37,7 @@ public:
 
   // Kill this bullet (call the parent function kill(), but also notify Bullets
   // that the bullet was destroyed)
-  void kill();
+  void killBullet();
 };
 
 #endif /* BULLET_H */

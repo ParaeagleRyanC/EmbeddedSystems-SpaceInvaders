@@ -2,6 +2,8 @@
 #include "Globals.h"
 
 static bool goDown = false;
+static int colsWithAliens[] = {1,1,1,1,1,1,1,1,1,1,1};
+static uint16_t alienFireTimer = 0;
 
 Aliens::Aliens() {
     moveTickCnt = 0;
@@ -92,7 +94,10 @@ void Aliens::updateMovingDirection() {
 
 // Tick the alien group, and return whether something moved.
 bool Aliens::tick() {
+    alienFireTimer++;
     updateMovingDirection();
+    srand((unsigned) time(NULL));
+    int randCol = rand() % 11;
     for(int i = 0; i < 5; i++)
     {
         std::vector<Alien *> tempAlienRow = this->aliens.at(i);
@@ -107,6 +112,9 @@ bool Aliens::tick() {
         }
     }
     goDown = false;
+
+
+
     return false;
 }
 
@@ -119,5 +127,6 @@ void Aliens::checkCollisions() {
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
-
+    srand((unsigned) time(NULL));
+    this->fireTickMax = rand() % 100;
 }
