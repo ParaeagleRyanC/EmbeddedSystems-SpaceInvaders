@@ -49,3 +49,43 @@ void GameObject::resurrect()
     this->draw();
 }
 
+// Draw the object, but don't draw the background pixels 
+// (this is slower, but is needed for the bunker damage)
+void GameObject::drawNoBackground() {
+    Globals::getGraphics().drawSprite(sprite, x, y, this->size, Globals::getColorGreen());
+}
+
+bool isOverlapped(uint16_t pos, uint16_t boundary1, uint16_t boundary2) {
+    return pos >= boundary1 && pos <= boundary2;
+}
+
+// Check if this object is overlapping a given object.  This can be used to
+// handle all collisions in the game.
+bool GameObject::isOverlapping(GameObject *object) {
+    if (object == nullptr || !this->isAlive() || !object->isAlive()) return false;
+
+    uint16_t object1Left = this->getX();
+    uint16_t object1Right = this->getX() + this->getWidth();
+    uint16_t object1Top = this->getY();
+    uint16_t object1Bottom = this->getY() + this->getHeight();
+
+    uint16_t object2Left = object->getX();
+    uint16_t object2Right = object->getX() + object->getWidth();
+    uint16_t object2Top = object->getY();
+    uint16_t object2Bottom = object->getY() + object->getHeight();
+
+    if (isOverlapped(object1Left, object2Left, object2Right) || 
+        isOverlapped(object1Right, object2Left, object2Right))
+        if (isOverlapped(object1Top, object2Top, object2Bottom) || 
+            isOverlapped(object1Bottom, object2Top, object2Bottom))
+                return true; 
+
+    if (isOverlapped(object2Left, object1Left, object1Right) || 
+        isOverlapped(object2Right, object1Left, object1Right))
+        if (isOverlapped(object2Top, object1Top, object1Bottom) || 
+            isOverlapped(object2Bottom, object1Top, object1Bottom))
+                return true; 
+
+    return false;
+}
+

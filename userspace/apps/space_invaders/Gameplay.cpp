@@ -78,6 +78,13 @@ void Gameplay::drawInit()
     aliens->draw();
 }
 
+// Check all collisions by calling all appropriate collision functions.  This
+// only needs to be done if some game object moved during the last tick.
+void Gameplay::checkCollisions() {
+    Globals::getBunkers().checkCollisions();
+    tank->checkCollisions();
+}
+
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
@@ -107,6 +114,8 @@ void Gameplay::tick()
     }
 
     aliens->tick();
+
+    checkCollisions();
 
 }
 

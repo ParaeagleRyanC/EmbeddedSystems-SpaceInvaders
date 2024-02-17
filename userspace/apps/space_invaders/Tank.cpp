@@ -72,9 +72,19 @@ bool Tank::tick(uint8_t btn) {
 
 // Check for collisions between alien bullets and the tank
 void Tank::checkCollisions() {
-    // if(GameObject::isOverlapping()) {
-    //     Tank::kill();
-    // }
+    // /exit loop if no flying enemy bullet 
+    if (Globals::getBullets().getEnemyBullets().empty()) return;
+
+    // loop through each live bullet and check for collision with the bunker
+    for (auto blt = Globals::getBullets().getEnemyBullets().begin();
+                blt != Globals::getBullets().getEnemyBullets().end();) {
+        if (this->isOverlapping(*blt)) {
+            Globals::getBullets().kill(*blt);
+            this->kill();
+            blt--;
+        }
+        blt++;
+    }
 }
 
 // Kill the tank.  This should flag the explosion (but don't call
