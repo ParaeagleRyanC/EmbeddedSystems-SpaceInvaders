@@ -1,5 +1,6 @@
 #include "Aliens.h"
 #include "Globals.h"
+#include <random>
 
 static bool goDown = false;
 static int numAliensInCol[] = {5,5,5,5,5,5,5,5,5,5,5};
@@ -111,19 +112,41 @@ bool Aliens::tick() {
             {
                 if(movingLeft){tempAlienRow.at(j)->moveLeft();}
                 else{tempAlienRow.at(j)->moveRight();}
-                if(goDown)
-                {
-                    tempAlienRow.at(j)->moveDown();
-                }
+            }
+        }
+    }
+    // move the aliens down if needed
+    if(goDown)
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+            for (int j = 0; j < 11; j++)
+            {
+                tempAlienRow.at(j)->moveDown();
             }
         }
     }
 
+    //Manage when the aliens shoot bullets
     if(alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4)
     {
-        srand((unsigned) time(NULL));
-        int randCol = rand() % 11;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 10);
+
+        // Generate a random number in the range 1-11
+        int randCol = dis(gen);
         int row = numAliensInCol[randCol] - 1;
+        if(row == -1)
+        {
+            do
+            {
+                randCol = dis(gen);
+                row = numAliensInCol[randCol]-1;
+            } while (row == -1);
+            
+        }
         std::vector<Alien *> tempAlienRow = this->aliens.at(row);
         Alien *tempAlien = tempAlienRow.at(randCol);
         Globals::getBullets().newEnemyBullet(tempAlien);
@@ -149,5 +172,5 @@ void Aliens::checkCollisions() {
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
     srand((unsigned) time(NULL));
-    this->fireTickMax = rand() % 500;
+    this->fireTickMax = rand() % 250;
 }

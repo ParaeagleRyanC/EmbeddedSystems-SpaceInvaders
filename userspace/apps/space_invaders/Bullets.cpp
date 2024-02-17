@@ -59,16 +59,10 @@ bool Bullets::tick()
     
     for (auto alienBullet : enemyBullets)
     {
-        if(alienBullet != NULL)
+        if(alienBullet != NULL && alienBullet->isAlive())
         {
             alienBullet->tick();
-            if(!alienBullet->isAlive())
-            {
-                this->kill(alienBullet);
-            }
         }
     }
-
-
     return true;
 }
