@@ -2,8 +2,11 @@
 #include "Globals.h"
 
 static bool goDown = false;
-static int colsWithAliens[] = {1,1,1,1,1,1,1,1,1,1,1};
+static int numAliensInCol[] = {5,5,5,5,5,5,5,5,5,5,5};
 static uint16_t alienFireTimer = 0;
+static uint16_t clockTimer=0;
+static uint16_t secondsTimer=0;
+static uint16_t secondsTimerD1=-1;
 
 Aliens::Aliens() {
     moveTickCnt = 0;
@@ -95,24 +98,42 @@ void Aliens::updateMovingDirection() {
 // Tick the alien group, and return whether something moved.
 bool Aliens::tick() {
     alienFireTimer++;
+    clockTimer++;
+    secondsTimer = (clockTimer * 0.05);
     updateMovingDirection();
-    srand((unsigned) time(NULL));
-    int randCol = rand() % 11;
-    for(int i = 0; i < 5; i++)
+    
+    if(secondsTimer > secondsTimerD1)
     {
-        std::vector<Alien *> tempAlienRow = this->aliens.at(i);
-        for (int j = 0; j < 11; j++)
+        for(int i = 0; i < 5; i++)
         {
-            if(movingLeft){tempAlienRow.at(j)->moveLeft();}
-            else{tempAlienRow.at(j)->moveRight();}
-            if(goDown)
+            std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+            for (int j = 0; j < 11; j++)
             {
-                tempAlienRow.at(j)->moveDown();
+                if(movingLeft){tempAlienRow.at(j)->moveLeft();}
+                else{tempAlienRow.at(j)->moveRight();}
+                if(goDown)
+                {
+                    tempAlienRow.at(j)->moveDown();
+                }
             }
         }
     }
-    goDown = false;
 
+    if(alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4)
+    {
+        srand((unsigned) time(NULL));
+        int randCol = rand() % 11;
+        int row = numAliensInCol[randCol] - 1;
+        std::vector<Alien *> tempAlienRow = this->aliens.at(row);
+        Alien *tempAlien = tempAlienRow.at(randCol);
+        Globals::getBullets().newEnemyBullet(tempAlien);
+        Globals::getBullets().incNumAlienBullets();
+        alienFireTimer = 0;
+        this->generateRandomFireDelay();
+    }
+
+    goDown = false;
+    secondsTimerD1 = secondsTimer;
 
 
     return false;
@@ -128,5 +149,5 @@ void Aliens::checkCollisions() {
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
     srand((unsigned) time(NULL));
-    this->fireTickMax = rand() % 100;
+    this->fireTickMax = rand() % 500;
 }

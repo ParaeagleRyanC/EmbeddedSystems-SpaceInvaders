@@ -17,7 +17,7 @@ Bullet::Bullet(Tank *tank) :
 
 Bullet::Bullet(Alien *alien, Sprite *sprite1, Sprite *sprite2) : 
     GameObject(sprite1,alien->getMidX(), alien->getY(),
-                1,{255, 255, 255}),
+                BULLET_SIZE,{255, 255, 255}),
     usingSprite1(true),
     playerBullet(false),
     sprite1(sprite1),
@@ -40,9 +40,10 @@ bool Bullet::tick()
     //do these operations for the alien bullets
     else
     {
-        if(this->isAlive() && this->getY() >= GRAPHICS_HEIGHT-10)
+        if(this->isAlive() && this->getY() >= GRAPHICS_HEIGHT-20)
         {
             this->kill();
+            Globals::getBullets().decNumAlienBullets();
         }
         if(usingSprite1 && this->isAlive())
         {
