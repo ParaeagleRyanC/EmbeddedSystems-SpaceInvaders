@@ -6,8 +6,14 @@
 #include "GameObject.h"
 
 #include <time.h>
+#include <random>
 
 static bool goDown = false;
+static int numAliensInCol[] = {5,5,5,5,5,5,5,5,5,5,5};
+static uint16_t alienFireTimer = 0;
+static uint16_t clockTimer=0;
+static uint16_t secondsTimer=0;
+static uint16_t secondsTimerD1=-1;
 
 Aliens::Aliens() {
     moveTickCnt = 0;
@@ -98,28 +104,67 @@ void Aliens::updateMovingDirection() {
 
 // Tick the alien group, and return whether something moved.
 bool Aliens::tick() {
+    alienFireTimer++;
+    clockTimer++;
+    secondsTimer = (clockTimer * 0.05);
     updateMovingDirection();
-    for(int i = 0; i < 5; i++) {
-        std::vector<Alien *> tempAlienRow = this->aliens.at(i);
-        for (int j = 0; j < 11; j++) {
-            // Draw the explosion if the alien is exploding and then set it to not exploding
-            if(tempAlienRow[j]->isExploding()) {
-                // Change movement numbers if you want the explosion to be in line with the aliens
-                tempAlienRow[j]->move(Globals::getSprites().getAlienExplosion(), 0, 0);
-                // Set exploding to false
-                tempAlienRow[j]->resetExploding();
-            }
-            // Only draw and move the alien if it is alive
-            else if(tempAlienRow[j]->isAlive()) {
-                if(movingLeft){tempAlienRow[j]->moveLeft();}
-                else{tempAlienRow[j]->moveRight();}
-                if(goDown) {
-                    tempAlienRow[j]->moveDown();
-                }
+    
+    if(secondsTimer > secondsTimerD1)
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+            for (int j = 0; j < 11; j++)
+            {
+                if(movingLeft){tempAlienRow.at(j)->moveLeft();}
+                else{tempAlienRow.at(j)->moveRight();}
             }
         }
     }
+    // move the aliens down if needed
+    if(goDown)
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            std::vector<Alien *> tempAlienRow = this->aliens.at(i);
+            for (int j = 0; j < 11; j++)
+            {
+                tempAlienRow.at(j)->moveDown();
+            }
+        }
+    }
+
+    //Manage when the aliens shoot bullets
+    if(alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4)
+    {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 10);
+
+        // Generate a random number in the range 1-11
+        int randCol = dis(gen);
+        int row = numAliensInCol[randCol] - 1;
+        if(row == -1)
+        {
+            do
+            {
+                randCol = dis(gen);
+                row = numAliensInCol[randCol]-1;
+            } while (row == -1);
+            
+        }
+        std::vector<Alien *> tempAlienRow = this->aliens.at(row);
+        Alien *tempAlien = tempAlienRow.at(randCol);
+        Globals::getBullets().newEnemyBullet(tempAlien);
+        Globals::getBullets().incNumAlienBullets();
+        alienFireTimer = 0;
+        this->generateRandomFireDelay();
+    }
+
     goDown = false;
+    secondsTimerD1 = secondsTimer;
+
+
     return false;
 }
 
@@ -142,31 +187,6 @@ void Aliens::checkCollisions() {
 // Generate a random number of ticks for firing the next alien bullet and
 // store in fireTickMax
 void Aliens::generateRandomFireDelay() {
-    srand (time(NULL));
-    //casting might not work but test first
-    uint32_t numSecs = rand() % (static_cast<int>(ALIENS_BULLET_MAX_WAIT_SECONDS) - static_cast<int>(ALIENS_BULLET_MIN_WAIT_SECONDS)) + ALIENS_BULLET_MIN_WAIT_SECONDS;
-    fireTickMax = numSecs / SYSTEM_FIT_PERIOD_SECONDS;
+    srand((unsigned) time(NULL));
+    this->fireTickMax = rand() % 250;
 }
-
-
-// Test:
-// generateRandomFireDelay()
-// checkCollisions()
-// Alien moving after getting hit
-// Tank explosions (already implemented)
-
-// Implement:
-// New aliens for each round
-    // Resurrect all aliens at a new round
-    // Reset their positions
-    // Draw them again
-
-// UFO explosions
-// -Erasing the explosion all the way
-// -Not showing UFO after explosion is over
-
-// Scores
-
-// Alien bullets
-
-// Bullets for the tank. Cant test otherwise

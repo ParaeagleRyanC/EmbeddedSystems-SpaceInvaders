@@ -63,5 +63,6 @@ public:
 
   // Whether the aliens ahve reached the bottom of the screen (gamve over)
   bool reachedBottom() { return reachedBunker; }
+
 };
 #endif /* ALIENS_H */

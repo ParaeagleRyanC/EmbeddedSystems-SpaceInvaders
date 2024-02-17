@@ -5,6 +5,7 @@ class Bunkers;
 class Tank;
 class Aliens;
 class UFO;
+class Bullets;
 
 // This class manages the normal gameplay of the game (but not the
 // gameover/highscores screen)
@@ -17,6 +18,7 @@ private:
   Tank *tank;
   Aliens *aliens;
   UFO *ufo;
+  Bullets *bullets;
 
   // Check all collisions by calling all appropriate collision functions.  This
   // only needs to be done if some game object moved during the last tick.

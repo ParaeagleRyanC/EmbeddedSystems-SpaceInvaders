@@ -19,6 +19,7 @@ private:
   // There can only be one player bullet, so this will either point to the
   // active player bullet, or will be a nullptr.
   Bullet *playerBullet;
+  int numActiveEnemyBullets;
 
   // All enemby bullets
   std::list<Bullet *> enemyBullets;
@@ -40,6 +41,10 @@ public:
   // Kill this bullet (deallocate and remove, updating playerBullet or
   // enemyBullets)
   void kill(Bullet *bullet);
+
+  void incNumAlienBullets(){numActiveEnemyBullets++;}
+  void decNumAlienBullets(){numActiveEnemyBullets--;}
+  int getNumAlienBullets(){return numActiveEnemyBullets;}
 
 public:
   // Tick the bullets, and return whether something moved.

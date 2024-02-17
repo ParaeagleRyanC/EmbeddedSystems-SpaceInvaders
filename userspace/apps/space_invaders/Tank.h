@@ -5,6 +5,7 @@
 
 #include "GameObject.h"
 
+#define FIRE 1
 #define MOVE_RIGHT 2
 #define MOVE_LEFT 3
 
@@ -36,6 +37,8 @@ private:
   bool flagExplosion;
 
 public:
+  bool isTankHit() { return this-> flagExplosion; }
+
   // Tick the tank
   bool tick(uint8_t btn);
 
