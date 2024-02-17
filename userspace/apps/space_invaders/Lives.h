@@ -46,6 +46,8 @@ public:
   // Trigger gaining a life (happens when all aliens are destroyed); however,
   // make sure not to increase lives past the max number of lives.
   void gainALife();
+
+  uint8_t getNumLives() { return numLives; }
 };
 
 #endif /* LIVES_H */

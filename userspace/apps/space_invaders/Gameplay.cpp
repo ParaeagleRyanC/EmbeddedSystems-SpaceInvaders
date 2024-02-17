@@ -26,8 +26,11 @@ static uint16_t debounceTimer = 0;
 static uint16_t fastIncDecTimer = 0;
 static uint8_t nextBtnPresses = 0;
 static uint16_t alienFireTimer = 0;
-bool canMoveTank = false;
-bool gameOver = false;
+static uint16_t gameOverSettleCounter = 0;
+static bool canMoveTank = false;
+static bool gameOver = false;
+static bool saveHighscores = true;
+
 
 Gameplay::Gameplay()
 {
@@ -93,23 +96,45 @@ void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
 
-    Globals::getUFO().tick();
-    Globals::getBullets().tick();
-    aliens->generateRandomFireDelay();
+    
+    
+
+    if(gameOver) {
+
+        if (debounceTimer == DEBOUNCED_MS) {
+        if (buttons == BUTTONS_0_MASK) button = DONE_BTN;
+        else if (buttons == BUTTONS_1_MASK) {
+            button = NEXT_BTN;
+            nextBtnPresses++;
+        }
+        else if (buttons == BUTTONS_2_MASK) button = DEC_LETTER;
+        else if (buttons == BUTTONS_3_MASK) button = INC_LETTER;
+        }
+
+        // call tickUserEntry up to 3 next btn presses
+        if (nextBtnPresses < 3) {
+            tickHighScores();
+            button = 0;
+        }
+        else if (saveHighscores){
+            highScores->save();
+            saveHighscores = false;
+        }
+    }
 
     //this is the block for the tank
-    if (debounceTimer == DEBOUNCED_MS) {
+    else if (debounceTimer == DEBOUNCED_MS) {
         canMoveTank = true;
         if (buttons == BUTTONS_2_MASK) button = 2;
         else if (buttons == BUTTONS_3_MASK) button = 3;
         else if (buttons == BUTTONS_1_MASK) button = 1;
     }
 
-    if(gameOver) {
-        printf("Checkpoint B\n");
-        tickHighScores();
-    }
     else {
+        Globals::getUFO().tick();
+        Globals::getBullets().tick();
+        aliens->generateRandomFireDelay();
+
         // one press one move
         if (canMoveTank) {
             canMoveTank = false;
@@ -125,22 +150,33 @@ void Gameplay::tick()
         // tick if tank got hit
         if (tank->isTankHit()) tank->tick(0);
 
+        if (aliens->numAlive() == 0) {
+            this->aliens = new Aliens();
+            aliens->initialize();
+            aliens->draw();
+            Globals::getLives().gainALife();
+        }
+
         aliens->tick();
 
         checkCollisions();
 
-        if(Globals::getLives().isGameOver()) {
-            printf("Checkpoint A\n");
-            // This is where the seg faults begin
-            *this->highScores = HighScores(Globals::getScore().getScore());
+        if(Globals::getLives().isGameOver() || aliens->reachedBottom()) {
+            uint8_t livesLeft = Globals::getLives().getNumLives();
+            for (int i = 0; i < livesLeft; i++) Globals::getLives().loseALife();
+            Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
+            Globals::getGraphics().drawStr("            ", 8, 5, 2, Globals::getBackgroundColor());
+            Globals::getGraphics().drawStr("     ", 385, 8, 2, Globals::getBackgroundColor());
+            Globals::getGraphics().drawSprite(Globals::getSprites().getUFO(), Globals::getUFO().getX(), Globals::getUFO().getY(), UFO_SIZE, Globals::getBackgroundColor());
+            Globals::getGraphics().drawStrCentered("GAME OVER", 15, 5, Globals::getColorWhite()); // this will be way bigger
+            Globals::getGraphics().drawStrCentered("ENTER YOUR NAME", 55, 2, Globals::getColorWhite()); // slightly smaller
+            this->highScores = new HighScores(Globals::getScore().getScore());
             gameOver = true;
         }
     }
 }
 
-void Gameplay::tickHighScores()
-{
-    printf("Checkpoint C\n");
+void Gameplay::tickHighScores() {
     highScores->tickUserEntry(button);
 }
 

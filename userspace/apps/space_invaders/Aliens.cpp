@@ -130,6 +130,7 @@ bool Aliens::tick() {
                 else if(tempAlienRow[j]->isAlive()) {
                     if(movingLeft){tempAlienRow.at(j)->moveLeft();}
                     else{tempAlienRow.at(j)->moveRight();}
+                    if (tempAlienRow[j]->getY() >= 390) reachedBunker = true;
                 }
                 else if(tempAlienRow[j]->eraseOnce){
                     tempAlienRow[j]->eraseExplosion();
@@ -200,6 +201,7 @@ void Aliens::checkCollisions() {
             // Only check collisions for alive aliens
             auto bullet = Globals::getBullets().getPlayerBullet();
             if (tempAlienRow[j]->isAlive() && tempAlienRow[j]->isOverlapping(bullet)) {
+                numAliensAlive--;
                 Globals::getBullets().kill(bullet);
                 tempAlienRow[j]->explode();
 

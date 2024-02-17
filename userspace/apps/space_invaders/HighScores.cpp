@@ -71,6 +71,7 @@ std::vector<std::pair<std::string, uint32_t>> readHighScores(std::string filePat
 
 HighScores::HighScores(uint32_t score) {
 
+    Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
     this->score = score;
     userEntry = "AAA";
     entryIdx = 0;
