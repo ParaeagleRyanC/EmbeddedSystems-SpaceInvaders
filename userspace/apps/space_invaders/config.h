@@ -115,7 +115,7 @@
 #define SCORE_DIGITS 5
 
 // Points for different aliens
-#define SCORE_TOP_ALIEN 30
+#define SCORE_TOP_ALIEN 40
 #define SCORE_MID_ALIEN 20
 #define SCORE_BOT_ALIEN 10
 #define SCORE_SPACESHIP_MIN 50

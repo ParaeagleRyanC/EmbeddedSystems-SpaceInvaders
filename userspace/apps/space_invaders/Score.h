@@ -47,8 +47,8 @@ public:
     draw();
   }
   void hitSpaceship() {
-    score += (rand() % (SCORE_SPACESHIP_MAX - SCORE_SPACESHIP_MIN)) +
-             SCORE_SPACESHIP_MIN;
+    uint8_t randomNumber = (std::rand() % (SCORE_SPACESHIP_MAX / SCORE_SPACESHIP_MIN)) + 1;
+    score += (randomNumber * SCORE_SPACESHIP_MIN);
     draw();
   }
 };
