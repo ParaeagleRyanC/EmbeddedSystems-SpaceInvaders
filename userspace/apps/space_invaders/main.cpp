@@ -28,6 +28,7 @@ int main() {
         if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK) {game.buttons_isr();}
         intc_ack_interrupt(interrupts);
         intc_enable_uio_interrupts();
+        if (!game.isDoneSavingScores()) break;
     }
 
     game.end_game();

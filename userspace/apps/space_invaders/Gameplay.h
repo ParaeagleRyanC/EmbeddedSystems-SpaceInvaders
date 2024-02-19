@@ -21,12 +21,15 @@ private:
   UFO *ufo;
   Bullets *bullets;
   HighScores *highScores;
+  bool saveHighscores;
 
   // Check all collisions by calling all appropriate collision functions.  This
   // only needs to be done if some game object moved during the last tick.
   void checkCollisions();
 
 public:
+  bool isDoneSavingScores() { return saveHighscores; }
+
   // Draw everything at the beginning of the game
   void drawInit();
 

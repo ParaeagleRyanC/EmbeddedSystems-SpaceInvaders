@@ -29,11 +29,12 @@ static uint16_t alienFireTimer = 0;
 static uint16_t gameOverSettleCounter = 0;
 static bool canMoveTank = false;
 static bool gameOver = false;
-static bool saveHighscores = true;
+//static bool saveHighscores = true;
 
 
 Gameplay::Gameplay()
 {
+    saveHighscores = true;
     this->tank = new Tank();
     this->aliens = new Aliens();
     aliens->initialize();
@@ -95,10 +96,7 @@ void Gameplay::checkCollisions() {
 void Gameplay::tick()
 {
     debounceTimer += TEN_MS;
-
     
-    
-
     if(gameOver) {
 
         if (debounceTimer == DEBOUNCED_MS) {
