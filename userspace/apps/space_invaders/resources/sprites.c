@@ -8,8 +8,7 @@
 
 // clang-format off
 
-const uint32_t sprite_ufo_16x7[] =
-{
+const uint32_t sprite_ufo_16x7[] = {
 	UTILS_PACKWORD_16(0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0),
 	UTILS_PACKWORD_16(0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0),
 	UTILS_PACKWORD_16(0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0),
@@ -19,8 +18,7 @@ const uint32_t sprite_ufo_16x7[] =
 	UTILS_PACKWORD_16(0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0)
 };
 
-const uint32_t sprite_alien_explosion_12x10[] =
-{
+const uint32_t sprite_alien_explosion_12x10[] = {
 	UTILS_PACKWORD_12(0,0,0,0,0,0,1,0,0,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,1,0,0,1,0,0,0,1,0),
 	UTILS_PACKWORD_12(1,0,0,1,0,0,0,0,0,1,0,0),
@@ -33,8 +31,7 @@ const uint32_t sprite_alien_explosion_12x10[] =
 	UTILS_PACKWORD_12(0,0,0,0,0,1,0,0,0,0,0,0)
 };
 
-const uint32_t sprite_alien_top_in_12x8[] =
-{
+const uint32_t sprite_alien_top_in_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,0,0,1,1,0,0,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,0,1,1,1,1,0,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,1,1,1,1,1,1,0,0,0),
@@ -45,8 +42,7 @@ const uint32_t sprite_alien_top_in_12x8[] =
 	UTILS_PACKWORD_12(0,0,0,1,0,0,0,0,1,0,0,0)
 };
 
-const uint32_t sprite_alien_top_out_12x8[] =
-{
+const uint32_t sprite_alien_top_out_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,0,0,1,1,0,0,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,0,1,1,1,1,0,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,1,1,1,1,1,1,0,0,0),
@@ -57,8 +53,7 @@ const uint32_t sprite_alien_top_out_12x8[] =
 	UTILS_PACKWORD_12(0,0,1,0,1,0,0,1,0,1,0,0)
 };
 
-const uint32_t sprite_alien_middle_in_12x8[] =
-{
+const uint32_t sprite_alien_middle_in_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,1,0,0,0,0,0,1,0,0),
 	UTILS_PACKWORD_12(0,0,0,0,1,0,0,0,1,0,0,0),
 	UTILS_PACKWORD_12(0,0,0,1,1,1,1,1,1,1,0,0),
@@ -69,8 +64,7 @@ const uint32_t sprite_alien_middle_in_12x8[] =
 	UTILS_PACKWORD_12(0,0,0,0,1,1,0,1,1,0,0,0)
 };
 
-const uint32_t sprite_alien_middle_out_12x8[] =
-{
+const uint32_t sprite_alien_middle_out_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,1,0,0,0,0,0,1,0,0),
 	UTILS_PACKWORD_12(0,1,0,0,1,0,0,0,1,0,0,1),
 	UTILS_PACKWORD_12(0,1,0,1,1,1,1,1,1,1,0,1),
@@ -81,8 +75,7 @@ const uint32_t sprite_alien_middle_out_12x8[] =
 	UTILS_PACKWORD_12(0,0,1,0,0,0,0,0,0,0,1,0)
 };
 
-const uint32_t sprite_alien_bottom_in_12x8[] =
-{
+const uint32_t sprite_alien_bottom_in_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,0,1,1,1,1,0,0,0,0),
 	UTILS_PACKWORD_12(0,1,1,1,1,1,1,1,1,1,1,0),
 	UTILS_PACKWORD_12(1,1,1,1,1,1,1,1,1,1,1,1),
@@ -93,8 +86,7 @@ const uint32_t sprite_alien_bottom_in_12x8[] =
 	UTILS_PACKWORD_12(0,0,1,1,0,0,0,0,1,1,0,0)
 };
 
-const uint32_t sprite_alien_bottom_out_12x8[] =
-{
+const uint32_t sprite_alien_bottom_out_12x8[] = {
 	UTILS_PACKWORD_12(0,0,0,0,1,1,1,1,0,0,0,0),
 	UTILS_PACKWORD_12(0,1,1,1,1,1,1,1,1,1,1,0),
 	UTILS_PACKWORD_12(1,1,1,1,1,1,1,1,1,1,1,1),
@@ -105,8 +97,7 @@ const uint32_t sprite_alien_bottom_out_12x8[] =
 	UTILS_PACKWORD_12(1,1,0,0,0,0,0,0,0,0,1,1)
 };
 
-const uint32_t sprite_tank_15x8[] =
-{
+const uint32_t sprite_tank_15x8[] = {
 	UTILS_PACKWORD_15(0,0,0,0,0,0,0,1,0,0,0,0,0,0,0),
 	UTILS_PACKWORD_15(0,0,0,0,0,0,1,1,1,0,0,0,0,0,0),
 	UTILS_PACKWORD_15(0,0,0,0,0,0,1,1,1,0,0,0,0,0,0),
@@ -119,8 +110,7 @@ const uint32_t sprite_tank_15x8[] =
 
 
 // Shape of the entire bunker.
-const uint32_t sprite_bunker_24x18[] =
-{
+const uint32_t sprite_bunker_24x18[] = {
 	UTILS_PACKWORD_24(0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0),
 	UTILS_PACKWORD_24(0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0),
 	UTILS_PACKWORD_24(0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0),
@@ -152,6 +142,7 @@ const uint32_t sprite_bunkerDamage0_6x6[] = {
 	UTILS_PACKWORD_6(0,0,0,0,0,0),
 	UTILS_PACKWORD_6(0,0,0,0,0,0)
 };
+
 const uint32_t sprite_bunkerDamage1_6x6[] = {
 	UTILS_PACKWORD_6(0,1,1,0,0,0),
 	UTILS_PACKWORD_6(0,0,0,0,0,1),

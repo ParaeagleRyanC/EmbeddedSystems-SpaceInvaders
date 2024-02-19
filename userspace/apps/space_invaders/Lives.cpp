@@ -4,7 +4,6 @@
 Lives::Lives() {
     numLives = LIVES_AT_START;
     xDrawTankStart = 465;
-    // do something with the tankLives vector
 }
 
 // Draw the lives at the start of the game

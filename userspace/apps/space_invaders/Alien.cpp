@@ -10,33 +10,27 @@ Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y, bool b
     in(true),
     exploding(false),
     eraseOnce(false),
-    bottom(bottomStatus)
-{
-}
+    bottom(bottomStatus) {}
 
-void Alien::moveLeft()
-{
+void Alien::moveLeft() {
     this->in = !in;
     if(in){move(spriteIn,-3,0);}
     else{move(spriteOut,-3,0);}
 }
 
-void Alien::moveRight()
-{
+void Alien::moveRight() {
     this->in = !in;
     if(in){move(spriteIn,3,0);}
     else{move(spriteOut,3,0);}
 }
 
-void Alien::moveDown()
-{
+void Alien::moveDown() {
     this->in = !in;
     if(in){move(spriteIn,0,20);}
     else{move(spriteOut,0,20);}
 }
 
-void Alien::explode()
-{
+void Alien::explode() {
     // Explode the alien
     exploding = true;
     // Kill the alien
@@ -44,16 +38,8 @@ void Alien::explode()
     // Draw the alien as a blank space ONCE?
 }
 
-void Alien::resetExploding() {
-    exploding = false;
-}
+void Alien::resetExploding() { exploding = false; }
 
-bool Alien::isBottomAlien()
-{
-    return bottom;
-}
+bool Alien::isBottomAlien() { return bottom; }
 
-void Alien::changeBottomStatus()
-{
-    bottom = !bottom;
-}
+void Alien::changeBottomStatus() { bottom = !bottom; }

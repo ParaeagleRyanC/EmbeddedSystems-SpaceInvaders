@@ -28,9 +28,8 @@ Aliens::Aliens() {
 // private function
 // Returns the bottom most alien that is alive in a column, 
 // and nullptr if they are all dead.
-Alien Aliens::*getBottomAlienInColumn(uint8_t col) {
-    return NULL;
-}
+// not used
+Alien Aliens::*getBottomAlienInColumn(uint8_t col) { return NULL; }
 
 // Initialize all aliens.  This can be called again when all aliens are dead
 // to reset the alien group.
@@ -64,7 +63,7 @@ void Aliens::initialize() {
         }
         std::vector<Alien *> tempAlienVector;
         for (int j = 0; j < 11; ++j) {
-            if(i == 4){ bottomFlag = true;}
+            if (i == 4) { bottomFlag = true;}
             Alien *tempAlien = new Alien(
                 Globals::getSprites().getAlien(typeIn),
                 Globals::getSprites().getAlien(typeOut), init_x, init_y,bottomFlag);
@@ -120,13 +119,10 @@ bool Aliens::tick() {
     secondsTimer = (clockTimer * 0.05);
     updateMovingDirection();
     
-    if(secondsTimer > secondsTimerD1)
-    {
-        for(int i = 0; i < 5; i++)
-        { 
+    if (secondsTimer > secondsTimerD1) {
+        for (int i = 0; i < 5; i++) { 
             std::vector<Alien *> tempAlienRow = this->aliens.at(i);
-            for (int j = 0; j < 11; j++)
-            {
+            for (int j = 0; j < 11; j++) {
                 // Draw the explosion if the alien is exploding and then set it to not exploding
                 if(tempAlienRow[j]->isExploding()) {
                     // Change movement numbers if you want the explosion to be in line with the aliens
@@ -137,12 +133,12 @@ bool Aliens::tick() {
                 }
 
                 // Only draw and move the alien if it is alive
-                else if(tempAlienRow[j]->isAlive()) {
-                    if(movingLeft){tempAlienRow.at(j)->moveLeft();}
-                    else{tempAlienRow.at(j)->moveRight();}
+                else if (tempAlienRow[j]->isAlive()) {
+                    if (movingLeft){tempAlienRow.at(j)->moveLeft();}
+                    else {tempAlienRow.at(j)->moveRight();}
                     if (tempAlienRow[j]->getY() >= 390) reachedBunker = true;
                 }
-                else if(tempAlienRow[j]->eraseOnce){
+                else if (tempAlienRow[j]->eraseOnce){
                     tempAlienRow[j]->eraseExplosion();
                     tempAlienRow[j]->eraseOnce = false;
                 }
@@ -150,13 +146,10 @@ bool Aliens::tick() {
         }
     }
     // move the aliens down if needed
-    if(goDown)
-    {
-        for(int i = 0; i < 5; i++)
-        {
+    if (goDown) {
+        for (int i = 0; i < 5; i++) {
             std::vector<Alien *> tempAlienRow = this->aliens.at(i);
-            for (int j = 0; j < 11; j++)
-            {
+            for (int j = 0; j < 11; j++) {
                 // Only move down if alive
                 if(tempAlienRow[j]->isAlive()) {
                     tempAlienRow.at(j)->moveDown();
@@ -166,8 +159,7 @@ bool Aliens::tick() {
     }
 
     // Manage when the aliens shoot bullets
-    if(alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4)
-    {
+    if (alienFireTimer >= this->fireTickMax && Globals::getBullets().getNumAlienBullets() < 4) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 10);
@@ -181,19 +173,14 @@ bool Aliens::tick() {
         int randRow;
         std::vector<Alien *> tempAlienRow;
         Alien *tempAlien;
-        while(1)
-        {
+        while (1) {
             randRow = dis2(gen2);
             tempAlienRow = this->aliens.at(randRow);
             tempAlien = tempAlienRow.at(randCol);
-            if(tempAlien->isBottomAlien())
-            {
-                break;
-            }
+            if(tempAlien->isBottomAlien()) { break; }
 
         }
-        if(tempAlien->isAlive() && tempAlien->isBottomAlien())
-        {   
+        if (tempAlien->isAlive() && tempAlien->isBottomAlien()) {   
             Globals::getBullets().newEnemyBullet(tempAlien);
             Globals::getBullets().incNumAlienBullets();
             alienFireTimer = 0;
@@ -214,7 +201,7 @@ void Aliens::checkCollisions() {
     if (Globals::getBullets().getPlayerBullet() == NULL) return;
     
     // Loop through the vector of aliens
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         std::vector<Alien*> tempAlienRow = this->aliens.at(i);
         for (int j = 0; j < 11; j++) {
             // Only check collisions for alive aliens
@@ -224,18 +211,12 @@ void Aliens::checkCollisions() {
                 Globals::getBullets().kill(bullet);
                 tempAlienRow[j]->explode();
                 int counter = i;
-                if(tempAlienRow[j]->isBottomAlien())
-                {
-                    while(1)
-                    {
-                        if(counter == 0)
-                        {
-                            break;
-                        }
+                if(tempAlienRow[j]->isBottomAlien()) {
+                    while(1) {
+                        if(counter == 0) { break; }
                         std::vector<Alien*> aboveAlienRow = this->aliens.at(counter-1);
                         Alien* nextAlien = aboveAlienRow.at(j);
-                        if(nextAlien->isAlive())
-                        {
+                        if(nextAlien->isAlive()) {
                             nextAlien->changeBottomStatus();
                             break;
                         }
@@ -243,15 +224,9 @@ void Aliens::checkCollisions() {
                     }
                 }
                 // Calculate score based on the type of alien that was killed
-                if(i == 0) {
-                    Globals::getScore().hitTopAlien();
-                }
-                else if(i == 1 || i == 2) {
-                    Globals::getScore().hitMidAlien();
-                }
-                else {
-                    Globals::getScore().hitBotAlien();
-                }
+                if(i == 0) {  Globals::getScore().hitTopAlien(); }
+                else if(i == 1 || i == 2) { Globals::getScore().hitMidAlien(); }
+                else { Globals::getScore().hitBotAlien(); }
             }
         }
     }

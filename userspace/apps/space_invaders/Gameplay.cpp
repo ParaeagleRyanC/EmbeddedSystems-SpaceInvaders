@@ -12,7 +12,6 @@
 #include "Bullet.h"
 #include "HighScores.h"
 
-
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
 #define EXIT_ERROR -1
@@ -29,16 +28,13 @@ static uint16_t alienFireTimer = 0;
 static uint16_t gameOverSettleCounter = 0;
 static bool canMoveTank = false;
 static bool gameOver = false;
-//static bool saveHighscores = true;
 
-
-Gameplay::Gameplay()
-{
+Gameplay::Gameplay() {
     saveHighscores = true;
+
     this->tank = new Tank();
     this->aliens = new Aliens();
     aliens->initialize();
-
     this->bullets = new Bullets();
 
     Globals::getGraphics().fillScreen(Globals::getBackgroundColor());
@@ -74,8 +70,7 @@ Gameplay::Gameplay()
     intc_irq_enable(SYSTEM_INTC_IRQ_FIT_MASK);
 }
 
-void Gameplay::drawInit()
-{
+void Gameplay::drawInit() {
     Globals::getScore().draw();
     Globals::getLives().draw();
     Globals::getBunkers().draw();
@@ -93,20 +88,19 @@ void Gameplay::checkCollisions() {
     aliens->checkCollisions();
 }
 
-void Gameplay::tick()
-{
+void Gameplay::tick() {
     debounceTimer += TEN_MS;
     
-    if(gameOver) {
+    if (gameOver) {
 
         if (debounceTimer == DEBOUNCED_MS) {
-        if (buttons == BUTTONS_0_MASK) button = DONE_BTN;
-        else if (buttons == BUTTONS_1_MASK) {
-            button = NEXT_BTN;
-            nextBtnPresses++;
-        }
-        else if (buttons == BUTTONS_2_MASK) button = DEC_LETTER;
-        else if (buttons == BUTTONS_3_MASK) button = INC_LETTER;
+            if (buttons == BUTTONS_0_MASK) button = DONE_BTN;
+            else if (buttons == BUTTONS_1_MASK) {
+                button = NEXT_BTN;
+                nextBtnPresses++;
+            }
+            else if (buttons == BUTTONS_2_MASK) button = DEC_LETTER;
+            else if (buttons == BUTTONS_3_MASK) button = INC_LETTER;
         }
 
         // call tickUserEntry up to 3 next btn presses
@@ -120,7 +114,7 @@ void Gameplay::tick()
         }
     }
 
-    //this is the block for the tank
+    // this is the block for the tank
     else if (debounceTimer == DEBOUNCED_MS) {
         canMoveTank = true;
         if (buttons == BUTTONS_2_MASK) button = 2;
@@ -159,6 +153,7 @@ void Gameplay::tick()
 
         checkCollisions();
 
+        // do gameover stuff
         if(Globals::getLives().isGameOver() || aliens->reachedBottom()) {
             uint8_t livesLeft = Globals::getLives().getNumLives();
             for (int i = 0; i < livesLeft; i++) Globals::getLives().loseALife();
@@ -174,25 +169,15 @@ void Gameplay::tick()
     }
 }
 
-void Gameplay::tickHighScores() {
-    highScores->tickUserEntry(button);
-}
+void Gameplay::tickHighScores() { highScores->tickUserEntry(button); }
 
-void Gameplay::buttons_isr()
-{
+void Gameplay::buttons_isr() {
     buttons = buttons_read();
     debounceTimer = 0;
     buttons_ack_interrupt();
 }
 
-void Gameplay::end_game()
-{
+void Gameplay::end_game() {
     intc_exit();
     buttons_exit();
 }
-
-// Implement:
-// New aliens for each round
-    // Resurrect all aliens at a new round
-    // Reset their positions
-    // Draw them again

@@ -34,8 +34,6 @@ bool Tank::tick(uint8_t btn) {
             }
             else if (btn == FIRE && Globals::getBullets().getPlayerBullet() == NULL) {
                 Globals::getBullets().newPlayerBullet(this);
-                
-                //std::cout << "Fire" << std::endl;
             }
             else if (flagExplosion) {
                 tickCnt = 0;
@@ -61,14 +59,13 @@ bool Tank::tick(uint8_t btn) {
                 flagExplosion = false;
             }
             break;
-        
     }
-    return true; // probably have to change this later
+    return true;
 }
 
 // Check for collisions between alien bullets and the tank
 void Tank::checkCollisions() {
-    // /exit loop if no flying enemy bullet 
+    // exit loop if no flying enemy bullet 
     if (Globals::getBullets().getEnemyBullets().empty()) return;
 
     // loop through each live bullet and check for collision with the bunker
@@ -86,6 +83,4 @@ void Tank::checkCollisions() {
 
 // Kill the tank.  This should flag the explosion (but don't call
 // GameObject.kill(), otherwise the tank won't be drawn)
-void Tank::kill() {
-    flagExplosion = true;
-}
+void Tank::kill() { flagExplosion = true; }

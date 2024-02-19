@@ -17,7 +17,6 @@
 #define USER_ENTRY_Y 100
 #define USER_ENTRY_SIZE 1
 
-
 // helper function to get the filepath to highscore.txt
 std::string getPathToHighScoreTxt() {
     // create a buffer to store the path, up to 1024 characters

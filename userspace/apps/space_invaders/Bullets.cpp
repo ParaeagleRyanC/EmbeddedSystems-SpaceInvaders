@@ -4,30 +4,23 @@
 #include "Globals.h"
 #include "Bullet.h"
 
-Bullets::Bullets()
-{
-    playerBullet = NULL;
-}
+Bullets::Bullets() { playerBullet = NULL; }
 
-void Bullets::newPlayerBullet(Tank *tank)
-{
+void Bullets::newPlayerBullet(Tank *tank) {
     playerBullet = new Bullet(tank);
     playerBullet->resurrect();
 }
 
-void Bullets::newEnemyBullet(Alien *alien)
-{
+void Bullets::newEnemyBullet(Alien *alien) {
     srand((unsigned) time(NULL));
     int random = rand();
     sprite_bullet_type_t bulletd;
     sprite_bullet_type_t bulletu;
-    if(random%2)
-    {
+    if (random%2) {
         bulletu = SPRITE_BULLET_ALIEN1_UP;
         bulletd = SPRITE_BULLET_ALIEN1_DOWN;
     }
-    else
-    {
+    else {
         bulletu = SPRITE_BULLET_ALIEN2_UP;
         bulletd = SPRITE_BULLET_ALIEN2_DOWN;
     }
@@ -39,28 +32,23 @@ void Bullets::newEnemyBullet(Alien *alien)
     
     newAlienBullet->resurrect();
 }
-void Bullets::kill(Bullet *bullet)
-{
+
+void Bullets::kill(Bullet *bullet) {
     bullet->killBullet();
     bullet = NULL;
 }
 
-bool Bullets::tick()
-{
+bool Bullets::tick() {
     //std::cout << numActiveEnemyBullets << std::endl;
-    if(playerBullet != NULL)
-    {
+    if (playerBullet != NULL) {
         playerBullet->tick();
-        if(!playerBullet->isAlive())
-        {
+        if (!playerBullet->isAlive()) {
             playerBullet = NULL;
         }
     }
     
-    for (auto alienBullet : enemyBullets)
-    {
-        if(alienBullet != NULL && alienBullet->isAlive())
-        {
+    for (auto alienBullet : enemyBullets) {
+        if (alienBullet != NULL && alienBullet->isAlive()) {
             alienBullet->tick();
         }
     }
