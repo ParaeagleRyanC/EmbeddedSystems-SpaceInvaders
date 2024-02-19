@@ -35,11 +35,20 @@ Alien Aliens::*getBottomAlienInColumn(uint8_t col) {
 // Initialize all aliens.  This can be called again when all aliens are dead
 // to reset the alien group.
 void Aliens::initialize() {
+    aliens.clear();
+    moveTickCnt = 0;
+    fireTickCnt = 0;
+    fireTickMax = 0;
+    movingLeft = false;
+    numAliensAlive = 55;
+    reachedBunker = false;
+
     // create all alien objects
     uint16_t init_x = 240;
     uint16_t init_y = 80;
     sprite_alien_type_t typeIn;
     sprite_alien_type_t typeOut;
+    bool bottomFlag = false;
     for (int i = 0; i < 5; ++i) {
         if (i == 0) {
             typeIn = SPRITE_ALIEN_TOP_IN;
@@ -55,9 +64,10 @@ void Aliens::initialize() {
         }
         std::vector<Alien *> tempAlienVector;
         for (int j = 0; j < 11; ++j) {
+            if(i == 4){ bottomFlag = true;}
             Alien *tempAlien = new Alien(
                 Globals::getSprites().getAlien(typeIn),
-                Globals::getSprites().getAlien(typeOut), init_x, init_y);
+                Globals::getSprites().getAlien(typeOut), init_x, init_y,bottomFlag);
             tempAlienVector.push_back(tempAlien);
             init_x += Globals::getSprites().getAlien(typeIn)->getWidth() + 22;
         }
@@ -162,24 +172,33 @@ bool Aliens::tick() {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 10);
 
+        std::random_device rd2;
+        std::mt19937 gen2(rd2());
+        std::uniform_int_distribution<> dis2(0, 4);
+
         // Generate a random number in the range 1-11
         int randCol = dis(gen);
-        int row = numAliensInCol[randCol] - 1;
-        if(row == -1)
+        int randRow;
+        std::vector<Alien *> tempAlienRow;
+        Alien *tempAlien;
+        while(1)
         {
-            do
+            randRow = dis2(gen2);
+            tempAlienRow = this->aliens.at(randRow);
+            tempAlien = tempAlienRow.at(randCol);
+            if(tempAlien->isBottomAlien())
             {
-                randCol = dis(gen);
-                row = numAliensInCol[randCol]-1;
-            } while (row == -1);
-            
+                break;
+            }
+
         }
-        std::vector<Alien *> tempAlienRow = this->aliens.at(row);
-        Alien *tempAlien = tempAlienRow.at(randCol);
-        Globals::getBullets().newEnemyBullet(tempAlien);
-        Globals::getBullets().incNumAlienBullets();
-        alienFireTimer = 0;
-        this->generateRandomFireDelay();
+        if(tempAlien->isAlive() && tempAlien->isBottomAlien())
+        {   
+            Globals::getBullets().newEnemyBullet(tempAlien);
+            Globals::getBullets().incNumAlienBullets();
+            alienFireTimer = 0;
+            this->generateRandomFireDelay();
+        }
     }
 
     goDown = false;
@@ -204,7 +223,25 @@ void Aliens::checkCollisions() {
                 numAliensAlive--;
                 Globals::getBullets().kill(bullet);
                 tempAlienRow[j]->explode();
-
+                int counter = i;
+                if(tempAlienRow[j]->isBottomAlien())
+                {
+                    while(1)
+                    {
+                        if(counter == 0)
+                        {
+                            break;
+                        }
+                        std::vector<Alien*> aboveAlienRow = this->aliens.at(counter-1);
+                        Alien* nextAlien = aboveAlienRow.at(j);
+                        if(nextAlien->isAlive())
+                        {
+                            nextAlien->changeBottomStatus();
+                            break;
+                        }
+                        counter--;
+                    }
+                }
                 // Calculate score based on the type of alien that was killed
                 if(i == 0) {
                     Globals::getScore().hitTopAlien();

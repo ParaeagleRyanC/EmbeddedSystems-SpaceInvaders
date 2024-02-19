@@ -3,13 +3,14 @@
 #include <GameObject.h>
 #include <iostream>
 
-Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y) :
+Alien::Alien(Sprite *spriteIn, Sprite *spriteOut, uint16_t x, uint16_t y, bool bottomStatus) :
     GameObject(spriteIn, x, y, 2, {255, 255, 255}), // Call base class constructor in the initializer list
     spriteIn(spriteIn), // Initialize member variables
     spriteOut(spriteOut),
     in(true),
     exploding(false),
-    eraseOnce(false)
+    eraseOnce(false),
+    bottom(bottomStatus)
 {
 }
 
@@ -39,10 +40,20 @@ void Alien::explode()
     // Explode the alien
     exploding = true;
     // Kill the alien
-    GameObject::kill();
+    this->kill();
     // Draw the alien as a blank space ONCE?
 }
 
 void Alien::resetExploding() {
     exploding = false;
+}
+
+bool Alien::isBottomAlien()
+{
+    return bottom;
+}
+
+void Alien::changeBottomStatus()
+{
+    bottom = !bottom;
 }
