@@ -151,7 +151,7 @@ void Gameplay::tick()
         if (tank->isTankHit()) tank->tick(0);
 
         if (aliens->numAlive() == 0) {
-            this->aliens = new Aliens();
+            //this->aliens = new Aliens();
             aliens->initialize();
             aliens->draw();
             Globals::getLives().gainALife();
