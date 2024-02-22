@@ -3,7 +3,7 @@
 #include <linux/module.h>
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Your name");
+MODULE_AUTHOR("Ryan Chiang");
 MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
@@ -28,6 +28,7 @@ struct audio_device {
   u32 *virt_addr;               // Virtual address
 
   // Add any device-specific items to this that you need
+  struct class *my_class;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,24 +70,30 @@ static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
 
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
+  dev_t* devValue;
+  int successCode = alloc_chrdev_region(devValue, 0, 1, MODULE_NAME);
 
   // Create a device class. -- class_create()
+  audio.my_class = class_create(THIS_MODULE, MODULE_NAME);
 
   // Register the driver as a platform driver -- platform_driver_register
 
   // If any of the above functions fail, return an appropriate linux error code,
-  // and make sure
-  // you reverse any function calls that were successful.
+  // and make sure you reverse any function calls that were successful.
 
-  return 0; //(Success)
+  return 0; // Success
 }
 
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
   // platform_driver_unregister
+
   // class_destroy
+  class_destroy(audio.my_class);
+
   // unregister_chrdev_region
+  unregister_chrdev_region(dev_t first, unsigned int count);
   return;
 }
 
