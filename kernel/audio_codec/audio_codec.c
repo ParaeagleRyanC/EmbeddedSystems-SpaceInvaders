@@ -1,6 +1,9 @@
 #include <linux/cdev.h>
 #include <linux/init.h>
 #include <linux/module.h>
+#include <linux/fs.h>
+#include <linux/platform_device.h>
+#include <linux/of_address.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ryan Chiang");
@@ -14,21 +17,20 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 // This struct contains all variables for an individual audio device. Although
 // this driver will only support one device, it is good practice to structure
-// device-specific variables this way.  That way if you were to extend your
+// device-specific variables this way. That way if you were to extend your
 // driver to multiple devices, you could simply have an array of these device
 // structs.
 
 struct audio_device {
-  int minor_num;                // Device minor number
-  struct cdev cdev;             // Character device structure
+  int minor_num; // Device minor number
+  struct cdev cdev; // Character device structure
   struct platform_device *pdev; // Platform device pointer
-  struct device *dev;           // device (/dev)
-  phys_addr_t phys_addr;        // Physical address
-  u32 mem_size;                 // Allocated mem space size
-  u32 *virt_addr;               // Virtual address
+  struct device *dev; // device (/dev)
+  phys_addr_t phys_addr; // Physical address
+  u32 mem_size; // Allocated mem space size
+  u32 *virt_addr; // Virtual address
 
   // Add any device-specific items to this that you need
-  struct class *my_class;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,11 +55,39 @@ static void audio_exit(void);
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device *pdev);
 
+static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset);
+static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset);
+
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Driver Functions ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-// This section contains driver-level functions.  Remember, when you print
+static struct class *myAudioClass;
+
+static struct of_device_id audio_xillybus_of_match[] = {
+  { .compatible = "byu,ecen427-audio_codec", },
+  {}
+};
+
+MODULE_DEVICE_TABLE(of, audio_xillybus_of_match);
+
+static struct platform_driver audioPlatformDriver = {
+  .driver = {
+    .name = "audio_codec",
+    .owner = THIS_MODULE,
+    .of_match_table = audio_xillybus_of_match
+  },
+  .probe = audio_probe,
+  .remove = audio_remove
+};
+
+static const struct file_operations fops = {
+  .read = audio_read,
+  .write = audio_write,
+  .owner = THIS_MODULE
+};
+
+// This section contains driver-level functions. Remember, when you print
 // logging information from these functions, you should use the pr_*() functions
 // (ie. pr_info, pr_warning, pr_err, etc.)
 
@@ -70,38 +100,63 @@ static int audio_init(void) {
   pr_info("%s: Initializing Audio Driver!\n", MODULE_NAME);
 
   // Get a major number for the driver -- alloc_chrdev_region; // pg. 45, LDD3.
-  dev_t* devValue;
-  int successCode = alloc_chrdev_region(devValue, 0, 1, MODULE_NAME);
+  dev_t devValue;
+  int allocFailed = alloc_chrdev_region(&devValue, 0, 1, MODULE_NAME);
+  // handle error
+  if (allocFailed) {
+    pr_err("%s: Failed to alloc_chrdev_region!\n", MODULE_NAME);
+    return -1;
+  }
+
+  major_num = MAJOR(devValue);
+  pr_info("%d: Major Number\n", major_num);
+  audio.minor_num = MINOR(devValue);
+  pr_info("%d: Minor Number\n", audio.minor_num);
 
   // Create a device class. -- class_create()
-  audio.my_class = class_create(THIS_MODULE, MODULE_NAME);
+  myAudioClass = class_create(THIS_MODULE, MODULE_NAME);
+
+  // handle error
+  if (IS_ERR(myAudioClass)) {
+    pr_err("%s: Failed to class_create!\n", MODULE_NAME);
+    unregister_chrdev_region(devValue, 1);
+    return -1;
+  }
 
   // Register the driver as a platform driver -- platform_driver_register
+  int registerFailed = platform_driver_register(&audioPlatformDriver);
 
-  // If any of the above functions fail, return an appropriate linux error code,
-  // and make sure you reverse any function calls that were successful.
+  // handle error
+  if (registerFailed) {
+    pr_err("%s: Failed to platform_driver_register!\n", MODULE_NAME);
+    class_destroy(myAudioClass);
+    unregister_chrdev_region(devValue, 1);
+    return -1;
+  }
 
-  return 0; // Success
+  // Success
+  return 0; 
 }
 
 // This is called when Linux unloads your driver
 static void audio_exit(void) {
   pr_info("%s: Removing Audio Driver!\n", MODULE_NAME);
+
   // platform_driver_unregister
+  platform_driver_unregister(&audioPlatformDriver);
 
   // class_destroy
-  class_destroy(audio.my_class);
+  class_destroy(myAudioClass);
 
   // unregister_chrdev_region
-  unregister_chrdev_region(dev_t first, unsigned int count);
-  return;
+  unregister_chrdev_region(MKDEV(major_num, audio.minor_num), 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Device Functions ///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-// This section contains device-level functions.  Remember, when you print
+// This section contains device-level functions. Remember, when you print
 // logging information from these functions, you should use the dev_*()
 // functions
 // (ie. dev_info, dev_warning, dev_err, etc.)
@@ -109,14 +164,35 @@ static void audio_exit(void) {
 // Called by kernel when a platform device is detected that matches the
 // 'compatible' name of this driver.
 static int audio_probe(struct platform_device *pdev) {
+
   // Initialize the character device structure (cdev_init)
+  cdev_init(&audio.cdev, &fops);
+
   // Register the character device with Linux (cdev_add)
+  int addFailed = cdev_add(&audio.cdev, MKDEV(major_num, audio.minor_num), 1);
+
+  // handle error
+  if (addFailed) {
+    pr_err("%s: Failed to cdev_add!\n", MODULE_NAME);
+    return -1;
+  }
+
+  pr_info("%s: Device added!\n", MODULE_NAME);
 
   // Create a device file in /dev so that the character device can be accessed
   // from user space (device_create).
+  struct device* deviceCreate = device_create(myAudioClass, NULL, MKDEV(major_num, audio.minor_num), NULL, "audio_codec");
+  if (IS_ERR(deviceCreate)) {
+    pr_err("%s: Failed to device_create!\n", MODULE_NAME);
+    cdev_del(&audio.cdev);
+    return -1;
+  }
 
-  // Get the physical device address from the device tree --
-  // platform_get_resource
+  pr_info("%s: Device created!\n", MODULE_NAME);
+
+  // Get the physical device address from the device tree -- platform_get_resource
+  // struct resource* resource = platform_get_resource(struct platform_device * dev, unsigned int type, unsigned int num);
+
   // Reserve the memory region -- request_mem_region
   // Get a (virtual memory) pointer to the device -- ioremap
 
@@ -127,15 +203,34 @@ static int audio_probe(struct platform_device *pdev) {
   // and make sure
   // you reverse any function calls that were successful.
 
-  return 0; //(success)
+  // success 
+  return 0; 
 }
 
 // Called when the platform device is removed
 static int audio_remove(struct platform_device *pdev) {
+  pr_info("%s: Entered audio_remove!\n", MODULE_NAME);
+
   // free_irq
   // iounmap
   // release_mem_region
+
   // device_destroy
+  device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+  pr_info("%s: Device destroyed!\n", MODULE_NAME);
+
   // cdev_del
+  cdev_del(&audio.cdev);
+  pr_info("%s: Device removed!\n", MODULE_NAME);
+  return 0;
+}
+
+static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset) {
+  pr_info("%s: Entered audio_read!\n", MODULE_NAME);
+  return 0;
+}
+
+static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset) {
+  pr_info("%s: Entered audio_write!\n", MODULE_NAME);
   return 0;
 }
