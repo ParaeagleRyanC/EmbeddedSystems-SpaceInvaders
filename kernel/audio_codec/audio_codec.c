@@ -47,6 +47,8 @@ static int major_num;
 // need a list here, we can just use a single struct.
 static struct audio_device audio;
 
+static int irq_number;
+
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Forward function declarations //////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +59,7 @@ static int audio_remove(struct platform_device *pdev);
 
 static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset);
 static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset);
+static irqreturn_t my_isr(int irq, void *dev_id);
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Driver Functions ///////////////////////////////////////
@@ -182,26 +185,85 @@ static int audio_probe(struct platform_device *pdev) {
   // Create a device file in /dev so that the character device can be accessed
   // from user space (device_create).
   struct device* deviceCreate = device_create(myAudioClass, NULL, MKDEV(major_num, audio.minor_num), NULL, "audio_codec");
+
+  // handle error
   if (IS_ERR(deviceCreate)) {
     pr_err("%s: Failed to device_create!\n", MODULE_NAME);
     cdev_del(&audio.cdev);
     return -1;
   }
-
   pr_info("%s: Device created!\n", MODULE_NAME);
 
   // Get the physical device address from the device tree -- platform_get_resource
-  // struct resource* resource = platform_get_resource(struct platform_device * dev, unsigned int type, unsigned int num);
+  struct resource* memResource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+
+  // handle error
+  if (!memResource) {
+    pr_err("%s: Failed to platform_get_resource on MEM!\n", MODULE_NAME);
+    device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+    cdev_del(&audio.cdev);
+    return -1;
+  }
+  audio.phys_addr = memResource->start;
+  audio.mem_size = resource_size(memResource);
+  pr_info("%s: Got platform resource on MEM!\n", MODULE_NAME);
+  pr_info("%s: Physical start address is: %p\n", MODULE_NAME, audio.phys_addr);
+  pr_info("%s: Physical end address is: %p\n", MODULE_NAME, &memResource->end);
 
   // Reserve the memory region -- request_mem_region
+  struct resource* memRegionResource = request_mem_region(audio.phys_addr, audio.mem_size, MODULE_NAME); // might return somthing else
+
+  // handle error
+  if (!memRegionResource) {
+    pr_err("%s: Failed to request_mem_region!\n", MODULE_NAME);
+    device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+    cdev_del(&audio.cdev);
+    return -1;
+  }
+  pr_info("%s: Mem region requested!\n", MODULE_NAME);
+
   // Get a (virtual memory) pointer to the device -- ioremap
+  audio.virt_addr = ioremap(audio.phys_addr, audio.mem_size);
+   
+  // handle error
+  if (!audio.virt_addr) {
+    pr_err("%s: Failed to ioremap!\n", MODULE_NAME);
+    release_mem_region(audio.phys_addr, audio.mem_size);
+    device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+    cdev_del(&audio.cdev);
+    return -1;
+  }
+  pr_info("%s: Virtual memory pointer obtained!\n", MODULE_NAME);
+  pr_info("%s: Virtual address is: %p\n", MODULE_NAME, audio.virt_addr);
 
   // Get the IRQ number from the device tree -- platform_get_resource
-  // Register your interrupt service routine -- request_irq
+  struct resource* irqResource = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 
-  // If any of the above functions fail, return an appropriate linux error code,
-  // and make sure
-  // you reverse any function calls that were successful.
+  // handle error
+  if (!irqResource) {
+    pr_err("%s: Failed to platform_get_resource on IRQ!\n", MODULE_NAME);
+    iounmap(audio.virt_addr);
+    release_mem_region(audio.phys_addr, audio.mem_size);
+    device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+    cdev_del(&audio.cdev);
+    return -1;
+  }
+  irq_number = irqResource->start;
+  pr_info("%s: Got platform resource on IRQ!\n", MODULE_NAME);
+
+  // Register your interrupt service routine -- request_irq
+  int requestIrqFailed = request_irq(irq_number, my_isr, 0, MODULE_NAME, NULL);
+
+  // handle error
+  if (requestIrqFailed) {
+    pr_err("%s: Failed to request_irq!\n", MODULE_NAME);
+    iounmap(audio.virt_addr);
+    release_mem_region(audio.phys_addr, audio.mem_size);
+    device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
+    cdev_del(&audio.cdev);
+    return -1;
+  }
+  pr_info("%s: IRS registered for IRQ %d!\n", MODULE_NAME, irq_number);
 
   // success 
   return 0; 
@@ -212,8 +274,16 @@ static int audio_remove(struct platform_device *pdev) {
   pr_info("%s: Entered audio_remove!\n", MODULE_NAME);
 
   // free_irq
+  free_irq(irq_number, pdev);
+  pr_info("%s: IRQ freed!\n", MODULE_NAME);
+
   // iounmap
+  iounmap(audio.virt_addr);
+  pr_info("%s: Memory unmapped!\n", MODULE_NAME);
+
   // release_mem_region
+  release_mem_region(audio.phys_addr, audio.mem_size);
+  pr_info("%s: Mem region released!\n", MODULE_NAME);
 
   // device_destroy
   device_destroy(myAudioClass, MKDEV(major_num, audio.minor_num));
@@ -233,4 +303,13 @@ static ssize_t audio_read (struct file* file, char __user* user, size_t size, lo
 static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset) {
   pr_info("%s: Entered audio_write!\n", MODULE_NAME);
   return 0;
+}
+
+// ISR (Interrupt Service Routine) function
+static irqreturn_t my_isr(int irq, void *dev_id) {
+    // print a message to the kernel log 
+    
+    // disable the interrupt output of the audio core
+
+    return 0;  // Signal that the interrupt has been handled
 }
