@@ -4,12 +4,14 @@
 #include <linux/fs.h>
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
+#include <linux/interrupt.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ryan Chiang");
 MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
+#define STATUS_REG 0x10
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Device Struct //////////////////////////////////////////
@@ -60,6 +62,8 @@ static int audio_remove(struct platform_device *pdev);
 static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset);
 static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset);
 static irqreturn_t my_isr(int irq, void *dev_id);
+static void reg_write(int offset, int val);
+static ssize_t reg_read(int offset);
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Driver Functions ///////////////////////////////////////
@@ -112,9 +116,9 @@ static int audio_init(void) {
   }
 
   major_num = MAJOR(devValue);
-  pr_info("%d: Major Number\n", major_num);
+  pr_info("%s: Major Number is: %d\n", MODULE_NAME, major_num);
   audio.minor_num = MINOR(devValue);
-  pr_info("%d: Minor Number\n", audio.minor_num);
+  pr_info("%s: Minor Number is: %d\n", MODULE_NAME, audio.minor_num);
 
   // Create a device class. -- class_create()
   myAudioClass = class_create(THIS_MODULE, MODULE_NAME);
@@ -205,10 +209,10 @@ static int audio_probe(struct platform_device *pdev) {
     return -1;
   }
   audio.phys_addr = memResource->start;
-  audio.mem_size = resource_size(memResource);
+  audio.mem_size = memResource->end - memResource->start + 1; 
   pr_info("%s: Got platform resource on MEM!\n", MODULE_NAME);
-  pr_info("%s: Physical start address is: %p\n", MODULE_NAME, audio.phys_addr);
-  pr_info("%s: Physical end address is: %p\n", MODULE_NAME, &memResource->end);
+  pr_info("%s: Physical start address is: %x\n", MODULE_NAME, audio.phys_addr);
+  //pr_info("%s: Physical end address is: %p\n", MODULE_NAME, &memResource->end);
 
   // Reserve the memory region -- request_mem_region
   struct resource* memRegionResource = request_mem_region(audio.phys_addr, audio.mem_size, MODULE_NAME); // might return somthing else
@@ -264,6 +268,9 @@ static int audio_probe(struct platform_device *pdev) {
     return -1;
   }
   pr_info("%s: IRS registered for IRQ %d!\n", MODULE_NAME, irq_number);
+  
+  // enables interrupt
+  reg_write(STATUS_REG, 0x01);
 
   // success 
   return 0; 
@@ -274,7 +281,7 @@ static int audio_remove(struct platform_device *pdev) {
   pr_info("%s: Entered audio_remove!\n", MODULE_NAME);
 
   // free_irq
-  free_irq(irq_number, pdev);
+  free_irq(irq_number, NULL);
   pr_info("%s: IRQ freed!\n", MODULE_NAME);
 
   // iounmap
@@ -307,9 +314,21 @@ static ssize_t audio_write (struct file* file, const char __user* user, size_t s
 
 // ISR (Interrupt Service Routine) function
 static irqreturn_t my_isr(int irq, void *dev_id) {
-    // print a message to the kernel log 
-    
     // disable the interrupt output of the audio core
+    reg_write(STATUS_REG, 0x0);
+    // print a message to the kernel log 
+    pr_info("%s: IRQ Handled!\n", MODULE_NAME);
+    return IRQ_HANDLED;
+}
 
-    return 0;  // Signal that the interrupt has been handled
+
+static void reg_write(int offset, int val) {
+  pr_info("%s: Writing to register!\n", MODULE_NAME);
+  iowrite32(val, audio.virt_addr + offset / sizeof(u32));
+}
+
+
+static ssize_t reg_read(int offset) {
+  pr_info("%s: Reading from register!\n", MODULE_NAME);
+  return ioread32(audio.virt_addr + offset / sizeof(u32));
 }
