@@ -5,6 +5,7 @@
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/interrupt.h>
+#include <asm/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ryan Chiang");
@@ -33,6 +34,7 @@ struct audio_device {
   u32 *virt_addr; // Virtual address
 
   // Add any device-specific items to this that you need
+  int kernelBuffer[128000]; // Declare a static array of 512KB
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -304,18 +306,37 @@ static int audio_remove(struct platform_device *pdev) {
 
 static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset) {
   pr_info("%s: Entered audio_read!\n", MODULE_NAME);
-  return 0;
+  
+  // return one byte of data, with value 0 or 1, 
+  // indicating whether an audio sample is currently being played.
+  return copy_to_user(user, kernelBuffer, size);
 }
 
 static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset) {
   pr_info("%s: Entered audio_write!\n", MODULE_NAME);
-  return 0;
+
+  // disable the interrupt output of the audio core
+  reg_write(STATUS_REG, 0x0);
+
+  // Copy the audio data from user space to your buffer (including safety checks on the user space pointer)
+  unsigned long bytes_copied = copy_from_user(kernelBuffer, user, size);
+  if (bytes_copied != 0) return -EFAULT;
+
+  // enable the interrupt output of the audio core
+  reg_write(STATUS_REG, 0x1);
+  return size;
 }
 
 // ISR (Interrupt Service Routine) function
 static irqreturn_t my_isr(int irq, void *dev_id) {
-    // disable the interrupt output of the audio core
-    reg_write(STATUS_REG, 0x0);
+
+
+
+
+    // Once the end of the audio clip is reached, disable interrupts on the audio core.
+    // do some check first
+    reg_write(STATUS_REG, 0x0); // add check
+
     // print a message to the kernel log 
     pr_info("%s: IRQ Handled!\n", MODULE_NAME);
     return IRQ_HANDLED;

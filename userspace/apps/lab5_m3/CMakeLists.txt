@@ -1,0 +1,1 @@
+add_executable(lab5_m3 main.c)
