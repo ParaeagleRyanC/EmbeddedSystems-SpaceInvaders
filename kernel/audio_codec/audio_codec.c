@@ -5,7 +5,7 @@
 #include <linux/platform_device.h>
 #include <linux/of_address.h>
 #include <linux/interrupt.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ryan Chiang");
@@ -13,7 +13,10 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
 #define STATUS_REG 0x10
-#define BUFFER_SIZE 512 / 4 * 1024
+#define TXL_REG 0x08
+#define TXR_REG 0x0C
+#define BUFFER_SIZE 128000 // 512 / 4 * 1024
+#define THREE_QUATER_FULL 768
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Device Struct //////////////////////////////////////////
@@ -35,7 +38,7 @@ struct audio_device {
   u32 *virt_addr; // Virtual address
 
   // Add any device-specific items to this that you need
-  int kernelBuffer[BUFFER_SIZE]; // Declare a static array of 512KB
+  int kernelBuffer[BUFFER_SIZE]; // Declare a static array of 512KB 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +59,7 @@ static int irq_number;
 
 static ssize_t bufferIndex = 0;
 static u32 audioClipSize;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Forward function declarations //////////////////////////
@@ -312,7 +316,7 @@ static int audio_remove(struct platform_device *pdev) {
 // transfer one byte of data, with value 0 or 1, 
 // indicating whether an audio sample is currently being played.
 static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset) {
-  pr_info("%s: Entered audio_read!\n", MODULE_NAME);
+  // pr_info("%s: Entered audio_read!\n", MODULE_NAME);
   u8 is_playing = (bufferIndex != 0);
   if (copy_to_user(user, &is_playing, sizeof(is_playing)) != 0) return -1;
   return 1;
@@ -325,7 +329,7 @@ static ssize_t audio_write (struct file* file, const char __user* user, size_t s
   reg_write(STATUS_REG, 0x0);
 
   // Copy the audio data from user space to your buffer (including safety checks on the user space pointer)
-  unsigned long bytes_copied = copy_from_user(kernelBuffer, user, size);
+  unsigned long bytes_copied = copy_from_user(audio.kernelBuffer, user, size);
   if (bytes_copied != 0) return -EFAULT;
 
   bufferIndex = 0;
@@ -337,15 +341,12 @@ static ssize_t audio_write (struct file* file, const char __user* user, size_t s
   return size;
 }
 
-#define TXL_REG 0x08
-#define TXR_REG 0x0C
-#define THREE_QUATER_FULL 768
 // ISR (Interrupt Service Routine) function
 static irqreturn_t my_isr(int irq, void *dev_id) {
 
     for (int i = 0; i < THREE_QUATER_FULL; i++) {
-      reg_write(TXL_REG, kernelBuffer[bufferIndex]);
-      reg_write(TXR_REG, kernelBuffer[bufferIndex]);
+      reg_write(TXL_REG, audio.kernelBuffer[bufferIndex]);
+      reg_write(TXR_REG, audio.kernelBuffer[bufferIndex]);
       bufferIndex++;
 
       // Once the end of the audio clip is reached, disable interrupts on the audio core.
@@ -357,13 +358,13 @@ static irqreturn_t my_isr(int irq, void *dev_id) {
     }
 
     // print a message to the kernel log 
-    pr_info("%s: IRQ Handled!\n", MODULE_NAME);
+    // pr_info("%s: IRQ Handled!\n", MODULE_NAME);
     return IRQ_HANDLED;
 }
 
 
 static void reg_write(int offset, int val) {
-  pr_info("%s: Writing to register!\n", MODULE_NAME);
+  // pr_info("%s: Writing to register!\n", MODULE_NAME);
   iowrite32(val, audio.virt_addr + offset / sizeof(u32));
 }
 
