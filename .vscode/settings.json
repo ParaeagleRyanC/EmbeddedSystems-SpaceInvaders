@@ -69,6 +69,7 @@
         "sstream": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "audio_config.h": "c"
     }
 }

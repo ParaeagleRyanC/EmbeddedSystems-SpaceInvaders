@@ -13,6 +13,7 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 
 #define MODULE_NAME "audio"
 #define STATUS_REG 0x10
+#define BUFFER_SIZE 512 / 4 * 1024
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Device Struct //////////////////////////////////////////
@@ -34,7 +35,7 @@ struct audio_device {
   u32 *virt_addr; // Virtual address
 
   // Add any device-specific items to this that you need
-  int kernelBuffer[128000]; // Declare a static array of 512KB
+  int kernelBuffer[BUFFER_SIZE]; // Declare a static array of 512KB
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +53,9 @@ static int major_num;
 static struct audio_device audio;
 
 static int irq_number;
+
+static ssize_t bufferIndex = 0;
+static u32 audioClipSize;
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Forward function declarations //////////////////////////
@@ -304,12 +308,14 @@ static int audio_remove(struct platform_device *pdev) {
   return 0;
 }
 
+  
+// transfer one byte of data, with value 0 or 1, 
+// indicating whether an audio sample is currently being played.
 static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset) {
   pr_info("%s: Entered audio_read!\n", MODULE_NAME);
-  
-  // return one byte of data, with value 0 or 1, 
-  // indicating whether an audio sample is currently being played.
-  return copy_to_user(user, kernelBuffer, size);
+  u8 is_playing = (bufferIndex != 0);
+  if (copy_to_user(user, &is_playing, sizeof(is_playing)) != 0) return -1;
+  return 1;
 }
 
 static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset) {
@@ -322,20 +328,33 @@ static ssize_t audio_write (struct file* file, const char __user* user, size_t s
   unsigned long bytes_copied = copy_from_user(kernelBuffer, user, size);
   if (bytes_copied != 0) return -EFAULT;
 
+  bufferIndex = 0;
+  audioClipSize = size / 4;
+
   // enable the interrupt output of the audio core
   reg_write(STATUS_REG, 0x1);
+  
   return size;
 }
 
+#define TXL_REG 0x08
+#define TXR_REG 0x0C
+#define THREE_QUATER_FULL 768
 // ISR (Interrupt Service Routine) function
 static irqreturn_t my_isr(int irq, void *dev_id) {
 
+    for (int i = 0; i < THREE_QUATER_FULL; i++) {
+      reg_write(TXL_REG, kernelBuffer[bufferIndex]);
+      reg_write(TXR_REG, kernelBuffer[bufferIndex]);
+      bufferIndex++;
 
-
-
-    // Once the end of the audio clip is reached, disable interrupts on the audio core.
-    // do some check first
-    reg_write(STATUS_REG, 0x0); // add check
+      // Once the end of the audio clip is reached, disable interrupts on the audio core.
+      if (bufferIndex >= audioClipSize) {
+        bufferIndex = 0; // maybe not needed?
+        reg_write(STATUS_REG, 0x0);
+        return IRQ_HANDLED;
+      }
+    }
 
     // print a message to the kernel log 
     pr_info("%s: IRQ Handled!\n", MODULE_NAME);
