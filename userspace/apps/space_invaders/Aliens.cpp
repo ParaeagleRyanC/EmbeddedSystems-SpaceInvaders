@@ -112,6 +112,17 @@ void Aliens::updateMovingDirection() {
     }
 }
 
+int walkSound = 1;
+
+void playWalkSound() {
+    if (walkSound == 1) Globals::getPlaySound().playWalkOne();
+    if (walkSound == 2) Globals::getPlaySound().playWalkTwo();
+    if (walkSound == 3) Globals::getPlaySound().playWalkThree();
+    if (walkSound == 4) Globals::getPlaySound().playWalkFour();
+    if (walkSound == 4) walkSound = 1;
+    else walkSound++;
+}
+
 // Tick the alien group, and return whether something moved.
 bool Aliens::tick() {
     alienFireTimer++;
@@ -120,6 +131,7 @@ bool Aliens::tick() {
     updateMovingDirection();
     
     if (secondsTimer > secondsTimerD1) {
+        if (Globals::getPlaySound().isTankAlive) playWalkSound();
         for (int i = 0; i < 5; i++) { 
             std::vector<Alien *> tempAlienRow = this->aliens.at(i);
             for (int j = 0; j < 11; j++) {

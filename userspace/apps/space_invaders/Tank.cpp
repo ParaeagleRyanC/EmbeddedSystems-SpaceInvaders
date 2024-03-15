@@ -33,9 +33,12 @@ bool Tank::tick(uint8_t btn) {
                 tickCnt = 0;
             }
             else if (btn == FIRE && Globals::getBullets().getPlayerBullet() == NULL) {
+                Globals::getPlaySound().playLaser();
                 Globals::getBullets().newPlayerBullet(this);
             }
             else if (flagExplosion) {
+                Globals::getPlaySound().setTankAlive();
+                Globals::getPlaySound().playPlayerDie();
                 tickCnt = 0;
                 Globals::getLives().loseALife();
                 move(Globals::getSprites().getTank(SPRITE_TANK_EXPLOSION1), 0, 0);
@@ -55,6 +58,7 @@ bool Tank::tick(uint8_t btn) {
             if(tickCnt >= deathTickMax) {
                 tickCnt = 0;
                 move(Globals::getSprites().getTank(SPRITE_TANK), -x, 0);
+                Globals::getPlaySound().setTankAlive();
                 state = TANK_STATE_ALIVE;
                 flagExplosion = false;
             }

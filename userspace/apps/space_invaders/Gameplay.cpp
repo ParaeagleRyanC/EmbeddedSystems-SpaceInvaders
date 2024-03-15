@@ -11,6 +11,7 @@
 #include "Bullets.h"
 #include "Bullet.h"
 #include "HighScores.h"
+#include "audio_config/audio_config.h"
 
 #define DEBOUNCED_MS 30
 #define TEN_MS 10
@@ -30,6 +31,7 @@ static bool canMoveTank = false;
 static bool gameOver = false;
 
 Gameplay::Gameplay() {
+    gameVolume = 30;
     saveHighscores = true;
 
     this->tank = new Tank();
@@ -62,7 +64,13 @@ Gameplay::Gameplay() {
         exit(EXIT_ERROR);
     }
 
-        // Enable interrupt output from buttons
+    // Initialize the audio codec chip via I2C
+    audio_config_init();
+
+    // set volume
+    audio_config_set_volume(gameVolume);
+
+    // Enable interrupt output from buttons
     buttons_enable_interrupts();
 
     // Enable button and FIT interrupt lines on interrupt controller
@@ -90,8 +98,26 @@ void Gameplay::checkCollisions() {
 
 void Gameplay::tick() {
     debounceTimer += TEN_MS;
+
+    // set volume
+    if (debounceTimer == DEBOUNCED_MS) {
+        if (switches_read() & SWITCHES_0_MASK) {
+            if (buttons_read() & BUTTONS_3_MASK) {
+                if (gameVolume < 60) gameVolume += 3;
+                audio_config_set_volume(gameVolume);
+            }
+        }
+        else {
+            if (buttons_read() & BUTTONS_3_MASK) {
+                if (gameVolume > 0) gameVolume -= 3;
+                audio_config_set_volume(gameVolume);
+            }
+        }
+    }
+    
     
     if (gameOver) {
+        Globals::getPlaySound().loopOff();
 
         if (debounceTimer == DEBOUNCED_MS) {
             if (buttons == BUTTONS_0_MASK) button = DONE_BTN;
@@ -117,9 +143,10 @@ void Gameplay::tick() {
     // this is the block for the tank
     else if (debounceTimer == DEBOUNCED_MS) {
         canMoveTank = true;
-        if (buttons == BUTTONS_2_MASK) button = 2;
-        else if (buttons == BUTTONS_3_MASK) button = 3;
-        else if (buttons == BUTTONS_1_MASK) button = 1;
+        if (buttons & BUTTONS_2_MASK) button = 2;
+        else if (buttons & BUTTONS_0_MASK) button = 0;
+        else if (buttons & BUTTONS_1_MASK) button = 1;
+        else button = 3;
     }
 
     else {

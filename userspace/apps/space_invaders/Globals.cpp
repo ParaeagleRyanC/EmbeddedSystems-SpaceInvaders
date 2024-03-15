@@ -11,3 +11,4 @@ Bunkers Globals::bunkers;
 Lives Globals::lives;
 Score Globals::score;
 UFO Globals::ufo;
+PlaySound Globals::playSound;

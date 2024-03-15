@@ -29,8 +29,8 @@ void Bullets::newEnemyBullet(Alien *alien) {
                         Globals::getSprites().getBullet(bulletd),
                         Globals::getSprites().getBullet(bulletu));
     enemyBullets.push_back(newAlienBullet);
-    
     newAlienBullet->resurrect();
+    //Globals::getPlaySound().playLaser();
 }
 
 void Bullets::kill(Bullet *bullet) {
@@ -39,7 +39,6 @@ void Bullets::kill(Bullet *bullet) {
 }
 
 bool Bullets::tick() {
-    //std::cout << numActiveEnemyBullets << std::endl;
     if (playerBullet != NULL) {
         playerBullet->tick();
         if (!playerBullet->isAlive()) {

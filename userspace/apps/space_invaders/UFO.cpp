@@ -5,6 +5,7 @@
 #include "Bullet.h"
 
 #include <time.h>
+#include <stdio.h>
 
 // The flying UFO object
 UFO::UFO() : GameObject(Globals::getSprites().getUFO(), 0, UFO_Y, UFO_SIZE, Globals::getColorRed()),
@@ -33,6 +34,9 @@ bool UFO::tick() {
                 else this->draw();
                 tickCnt = 0;
                 state = MOVING;
+                Globals::getPlaySound().loopOn();
+                Globals::getPlaySound().setUfoPlaying();
+                Globals::getPlaySound().playUfo();
             }
             break;
 
@@ -49,6 +53,8 @@ bool UFO::tick() {
                 this->move(Globals::getSprites().getUFO(), -getX(), 0);
                 this->erase();
                 state = HIDDEN;
+                Globals::getPlaySound().loopOff();
+                Globals::getPlaySound().setUfoPlaying();
             }
             // Get destroyed
             else if (flagKill) {
@@ -56,6 +62,9 @@ bool UFO::tick() {
                 tickCnt = 0;
                 flagKill = false;
                 state = EXPLODING;
+                Globals::getPlaySound().loopOff();
+                Globals::getPlaySound().setUfoPlaying();
+                Globals::getPlaySound().playUfoDie();
             }
             break;
         // Exploding State

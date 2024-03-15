@@ -1,4 +1,6 @@
 #include "Alien.h"
+#include "Globals.h"
+
 #include <stdint.h>
 #include <GameObject.h>
 #include <iostream>
@@ -35,7 +37,7 @@ void Alien::explode() {
     exploding = true;
     // Kill the alien
     this->kill();
-    // Draw the alien as a blank space ONCE?
+    Globals::getPlaySound().playInvaderDie();
 }
 
 void Alien::resetExploding() { exploding = false; }

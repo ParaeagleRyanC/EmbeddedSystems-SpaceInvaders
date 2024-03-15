@@ -22,6 +22,7 @@ private:
   Bullets *bullets;
   HighScores *highScores;
   bool saveHighscores;
+  int gameVolume;
 
   // Check all collisions by calling all appropriate collision functions.  This
   // only needs to be done if some game object moved during the last tick.

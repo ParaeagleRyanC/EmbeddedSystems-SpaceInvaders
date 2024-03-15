@@ -5,9 +5,9 @@
 
 #include "GameObject.h"
 
-#define FIRE 1
-#define MOVE_RIGHT 2
-#define MOVE_LEFT 3
+#define FIRE 0
+#define MOVE_RIGHT 1
+#define MOVE_LEFT 2
 
 // The player tank (can also be used to draw the tanks for the lives)
 class Tank : public GameObject {
