@@ -6,6 +6,7 @@
 #include <linux/of_address.h>
 #include <linux/interrupt.h>
 #include <linux/uaccess.h>
+#include <linux/ioctl.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ryan Chiang");
@@ -17,6 +18,8 @@ MODULE_DESCRIPTION("ECEn 427 Audio Driver");
 #define TXR_REG 0x0C
 #define BUFFER_SIZE 128000 // 512 / 4 * 1024
 #define THREE_QUATER_FULL 768
+#define LOOP_ON _IOW('u', 1, int)
+#define LOOP_OFF _IOW('u', 2, int)
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Device Struct //////////////////////////////////////////
@@ -39,6 +42,7 @@ struct audio_device {
 
   // Add any device-specific items to this that you need
   int kernelBuffer[BUFFER_SIZE]; // Declare a static array of 512KB 
+  int isLoopOn;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +73,9 @@ static void audio_exit(void);
 static int audio_probe(struct platform_device *pdev);
 static int audio_remove(struct platform_device *pdev);
 
-static ssize_t audio_read (struct file* file, char __user* user, size_t size, loff_t* offset);
-static ssize_t audio_write (struct file* file, const char __user* user, size_t size, loff_t* offset);
+static ssize_t audio_read(struct file* file, char __user* user, size_t size, loff_t* offset);
+static ssize_t audio_write(struct file* file, const char __user* user, size_t size, loff_t* offset);
+static long audio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 static irqreturn_t my_isr(int irq, void *dev_id);
 static void reg_write(int offset, int val);
 static ssize_t reg_read(int offset);
@@ -101,6 +106,7 @@ static struct platform_driver audioPlatformDriver = {
 static const struct file_operations fops = {
   .read = audio_read,
   .write = audio_write,
+  .unlocked_ioctl = audio_ioctl,
   .owner = THIS_MODULE
 };
 
@@ -351,8 +357,8 @@ static irqreturn_t my_isr(int irq, void *dev_id) {
 
       // Once the end of the audio clip is reached, disable interrupts on the audio core.
       if (bufferIndex >= audioClipSize) {
-        bufferIndex = 0; // maybe not needed?
-        reg_write(STATUS_REG, 0x0);
+        bufferIndex = 0;
+        if (!audio.isLoopOn) reg_write(STATUS_REG, 0x0);
         return IRQ_HANDLED;
       }
     }
@@ -372,4 +378,18 @@ static void reg_write(int offset, int val) {
 static ssize_t reg_read(int offset) {
   pr_info("%s: Reading from register!\n", MODULE_NAME);
   return ioread32(audio.virt_addr + offset / sizeof(u32));
+}
+
+static long audio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
+  switch (cmd) {
+    case LOOP_ON:
+      audio.isLoopOn = 1;
+      break;
+    case LOOP_OFF:
+      audio.isLoopOn = 0;
+      break;
+    default:
+      return -ENOTTY;
+  }
+  return 0;
 }

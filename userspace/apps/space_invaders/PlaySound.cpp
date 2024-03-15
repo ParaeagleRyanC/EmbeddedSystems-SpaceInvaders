@@ -27,10 +27,8 @@ void PlaySound::playInvaderDie() {
     int isPlaying = 1;
     if (isUfoPlaying) {
         loopOff();
-        audio_config_set_volume(60);
         write(fd, invaderDieBuffer, invaderDieBufferIndex * 4);
         while (isPlaying) read(fd, &isPlaying, 1);
-        audio_config_set_volume(30);
         loopOn();
         playUfo();
     }
@@ -57,10 +55,8 @@ void PlaySound::playLaser() {
     int isPlaying = 1;
     if (isUfoPlaying) {
         loopOff();
-        audio_config_set_volume(60);
         write(fd, laserBuffer, laserBufferIndex * 4);
         while (isPlaying) read(fd, &isPlaying, 1);
-        audio_config_set_volume(30);
         loopOn();
         playUfo();
     }

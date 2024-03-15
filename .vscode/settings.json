@@ -70,6 +70,10 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "stdint.h": "c",
-        "audio_config.h": "c"
+        "audio_config.h": "c",
+        "fcntl.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "stdio.h": "c"
     }
 }
