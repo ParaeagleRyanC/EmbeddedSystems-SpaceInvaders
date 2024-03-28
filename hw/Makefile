@@ -23,4 +23,4 @@ ip.zip:
 	rm $(LARGE_IP_FILE)
 
 sim_pit:
-	vivado -source sim_proj.tcl -source run_sim.tcl
+	/tools/Xilinx/Vivado/2022.2/bin/vivado -source sim_proj.tcl -source run_sim.tcl
