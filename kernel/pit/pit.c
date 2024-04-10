@@ -138,7 +138,7 @@ static int pit_probe(struct platform_device *pdev) {
   pr_info("%s: Virtual address is: %p\n", MODULE_NAME, virt_addr);
 
   // write to delay register
-  reg_write(PIT_DELAY_OFFEST, 500000);
+  reg_write(PIT_DELAY_OFFSET, 500000);
   reg_write(PIT_CONTROL_OFFEST, 0x3);
 
   // success 
