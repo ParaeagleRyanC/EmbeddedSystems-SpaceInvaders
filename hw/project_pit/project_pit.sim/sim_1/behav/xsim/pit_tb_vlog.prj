@@ -1,0 +1,23 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  --include "../../../../project_pit.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "/tools/Xilinx/Vivado/2022.2/data/xilinx_vip/include" \
+"../../../../../ip_repo/pit/pit.sv" \
+
+verilog xil_defaultlib  --include "../../../../project_pit.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "/tools/Xilinx/Vivado/2022.2/data/xilinx_vip/include" \
+"../../../../../ip_repo/pit/pit.v" \
+
+sv xil_defaultlib  --include "../../../../project_pit.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "/tools/Xilinx/Vivado/2022.2/data/xilinx_vip/include" \
+"../../../../project_pit.ip_user_files/bd/design_1/ip/design_1_axi_vip_0_0/sim/design_1_axi_vip_0_0_pkg.sv" \
+"../../../../project_pit.ip_user_files/bd/design_1/ip/design_1_axi_vip_0_0/sim/design_1_axi_vip_0_0.sv" \
+
+verilog xil_defaultlib  --include "../../../../project_pit.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "/tools/Xilinx/Vivado/2022.2/data/xilinx_vip/include" \
+"../../../../project_pit.ip_user_files/bd/design_1/ip/design_1_pit_0_0/sim/design_1_pit_0_0.v" \
+"../../../../project_pit.ip_user_files/bd/design_1/sim/design_1.v" \
+
+sv xil_defaultlib  --include "../../../../project_pit.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "/tools/Xilinx/Vivado/2022.2/data/xilinx_vip/include" \
+"../../../../../ip_repo/pit/pit_tb.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

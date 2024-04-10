@@ -24,7 +24,7 @@ int main() {
     
     while (1) {
         uint32_t interrupts = intc_wait_for_interrupt();
-        if (interrupts & SYSTEM_INTC_IRQ_FIT_MASK) {game.tick();}
+        if (interrupts & SYSTEM_INTC_IRQ_PIT_MASK) {game.tick();}
         if (interrupts & SYSTEM_INTC_IRQ_BUTTONS_MASK) {game.buttons_isr();}
         intc_ack_interrupt(interrupts);
         intc_enable_uio_interrupts();

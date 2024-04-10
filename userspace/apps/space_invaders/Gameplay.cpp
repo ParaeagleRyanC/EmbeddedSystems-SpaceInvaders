@@ -76,6 +76,7 @@ Gameplay::Gameplay() {
     // Enable button and FIT interrupt lines on interrupt controller
     intc_irq_enable(SYSTEM_INTC_IRQ_BUTTONS_MASK);
     intc_irq_enable(SYSTEM_INTC_IRQ_FIT_MASK);
+    intc_irq_enable(SYSTEM_INTC_IRQ_PIT_MASK);
 }
 
 void Gameplay::drawInit() {
