@@ -70,6 +70,12 @@
                 interrupt-parent = <&intc>;
                 interrupts = <0x0 0x1F 0x04>;
             };
+
+            /******************************** PIT Start *********************************/
+            ecen427_pit {
+                compatible = "byu,ecen427-pit";
+                reg = <0x40000000 0x10000>; // fix address
+            };
         };
     };  
 };
