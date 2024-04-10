@@ -14,7 +14,7 @@ MODULE_DESCRIPTION("ECEn 427 PIT");
 
 #define MODULE_NAME "pit"
 #define PIT_CONTROL_OFFSET 0x00
-#define PIT_DELAY_OFFEST 0x04
+#define PIT_DELAY_OFFSET 0x04
 
 #define BUFFER_SIZE 24
 
@@ -139,7 +139,7 @@ static int pit_probe(struct platform_device *pdev) {
 
   // write to delay register
   reg_write(PIT_DELAY_OFFSET, 500000);
-  reg_write(PIT_CONTROL_OFFEST, 0x3);
+  reg_write(PIT_CONTROL_OFFSET, 0x3);
 
   // success 
   return 0; 
