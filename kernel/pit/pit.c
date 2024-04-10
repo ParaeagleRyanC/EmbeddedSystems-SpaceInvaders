@@ -18,6 +18,8 @@ MODULE_DESCRIPTION("ECEn 427 PIT");
 
 #define BUFFER_SIZE 24
 
+struct kobject* ko; // for sysfs 
+
 static phys_addr_t phys_addr; // Physical address
 static u32 mem_size; // Allocated mem space size
 static u32 *virt_addr; // Virtual address
@@ -136,6 +138,9 @@ static int pit_probe(struct platform_device *pdev) {
   }
   pr_info("%s: Virtual memory pointer obtained!\n", MODULE_NAME);
   pr_info("%s: Virtual address is: %p\n", MODULE_NAME, virt_addr);
+
+  // sysfs
+  kobject = &pdev->dev.kobj;
 
   // write to delay register
   reg_write(PIT_DELAY_OFFSET, 50000);
