@@ -185,7 +185,6 @@ static int pit_probe(struct platform_device *pdev) {
   // handle error
   if (registerGroupFailed) {
     pr_err("%s: Failed to sysfs_create_group!\n", MODULE_NAME);
-    sysfs_remove_group(ko, &attributeGroup);
     iounmap(virt_addr);
     release_mem_region(phys_addr, mem_size);
     return -1;
@@ -202,6 +201,8 @@ static int pit_probe(struct platform_device *pdev) {
 // Called when the platform device is removed
 static int pit_remove(struct platform_device *pdev) {
   pr_info("%s: Entered pit_remove!\n", MODULE_NAME);
+
+  sysfs_remove_group(ko, &attributeGroup);
 
   // iounmap
   iounmap(virt_addr);
