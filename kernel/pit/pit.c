@@ -15,10 +15,20 @@ MODULE_DESCRIPTION("ECEn 427 PIT");
 #define MODULE_NAME "pit"
 #define PIT_CONTROL_OFFSET 0x00
 #define PIT_DELAY_OFFSET 0x04
-
+#define DEFAULT_DELAY_VALUE 1000000
+#define RUN_AND_ENABLED 0x03
+#define RUN 0x01
+#define ENABLED 0x02
 #define BUFFER_SIZE 24
+#define NUM_FILES 4
+#define BASE_TEN 10
 
 struct kobject* ko; // for sysfs 
+struct attribute* attributeBundle[NUM_FILES];
+struct device_attribute period;
+struct device_attribute int_en;
+struct device_attribute run;
+struct attribute_group attributeGroup;
 
 static phys_addr_t phys_addr; // Physical address
 static u32 mem_size; // Allocated mem space size
@@ -34,6 +44,12 @@ static int pit_probe(struct platform_device *pdev);
 static int pit_remove(struct platform_device *pdev);
 static void reg_write(int offset, int val);
 static ssize_t reg_read(int offset);
+static ssize_t show_period(struct device* dev, struct device_attribute* attr, char* buf);
+static ssize_t store_period(struct device* dev, struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t show_int_en(struct device* dev, struct device_attribute* attr, char* buf);
+static ssize_t store_int_en(struct device* dev, struct device_attribute* attr, const char* buf, size_t count);
+static ssize_t show_run(struct device* dev, struct device_attribute* attr, char* buf);
+static ssize_t store_run(struct device* dev, struct device_attribute* attr, const char* buf, size_t count);
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// Driver Functions ///////////////////////////////////////
@@ -140,11 +156,44 @@ static int pit_probe(struct platform_device *pdev) {
   pr_info("%s: Virtual address is: %p\n", MODULE_NAME, virt_addr);
 
   // sysfs
-  kobject = &pdev->dev.kobj;
-
-  // write to delay register
-  reg_write(PIT_DELAY_OFFSET, 50000);
-  reg_write(PIT_CONTROL_OFFSET, 0x3);
+  ko = &pdev->dev.kobj;
+  
+  period.attr.name = "period"; 
+  period.attr.mode = 0666; 		// Read/Write 
+  period.show = show_period;   	// Read Function 
+  period.store = store_period;  // Write function 
+  attributeBundle[0] = &period.attr; // add to budle
+  
+  int_en.attr.name = "int_en"; 
+  int_en.attr.mode = 0666; 		// Read/Write 
+  int_en.show = show_int_en;   	// Read Function 
+  int_en.store = store_int_en;  // Write function 
+  attributeBundle[1] = &int_en.attr; // add to budle
+  
+  run.attr.name = "run"; 
+  run.attr.mode = 0666; 		// Read/Write 
+  run.show = show_run;   		// Read Function 
+  run.store = store_run;  		// Write function 
+  attributeBundle[2] = &run.attr; // add to budle
+  
+  attributeBundle[3] = NULL; // indicate end of bundle
+  attributeGroup.attrs = attributeBundle; // set bundle to group
+  
+  // Registering a Group of Attributes
+  int registerGroupFailed = sysfs_create_group(ko, &attributeGroup);
+  
+  // handle error
+  if (registerGroupFailed) {
+    pr_err("%s: Failed to sysfs_create_group!\n", MODULE_NAME);
+    sysfs_remove_group(ko, &attributeGroup);
+    iounmap(virt_addr);
+    release_mem_region(phys_addr, mem_size);
+    return -1;
+  }
+  
+  // registered successfully, write to control and delay register
+  reg_write(PIT_DELAY_OFFSET, DEFAULT_DELAY_VALUE);
+  reg_write(PIT_CONTROL_OFFSET, RUN_AND_ENABLED);
 
   // success 
   return 0; 
@@ -170,8 +219,49 @@ static void reg_write(int offset, int val) {
   iowrite32(val, virt_addr + offset / sizeof(u32));
 }
 
-
 static ssize_t reg_read(int offset) {
   pr_info("%s: Reading from register!\n", MODULE_NAME);
   return ioread32(virt_addr + offset / sizeof(u32));
+}
+
+// read period
+static ssize_t show_period(struct device* dev, struct device_attribute* attr, char* buf) {
+	u32 period = reg_read(PIT_DELAY_OFFSET) / 100;
+  return scnprintf(buf, BUFFER_SIZE, "%u\n", period);
+}
+
+// write period
+static ssize_t store_period(struct device* dev, struct device_attribute* attr, const char* buf, size_t count) {
+  // simple_strtoul convert string to unsigned long, (start of string, end of string, base 10)
+	u32 period = simple_strtoul(buf, NULL, BASE_TEN) * 100; 
+  reg_write(PIT_DELAY_OFFSET, period);
+  return count;
+}
+
+// read interrupt enable
+static ssize_t show_int_en(struct device* dev, struct device_attribute* attr, char* buf) {
+	u32 enabled = (reg_read(PIT_CONTROL_OFFSET) & ENABLED) != 0;
+  return scnprintf(buf, BUFFER_SIZE, "%u\n", enabled);
+}
+
+// write interrupt enable
+static ssize_t store_int_en(struct device* dev, struct device_attribute* attr, const char* buf, size_t count) {
+	// simple_strtoul convert string to unsigned long, (start of string, end of string, base 10)
+	u32 enabled = simple_strtoul(buf, NULL, BASE_TEN); 
+  reg_write(PIT_CONTROL_OFFSET, enabled);
+  return count;
+}
+
+// read run (start/stop timer)
+static ssize_t show_run(struct device* dev, struct device_attribute* attr, char* buf) {
+	u32 running = (reg_read(PIT_CONTROL_OFFSET) & RUN) != 0;
+  return scnprintf(buf, BUFFER_SIZE, "%u\n", running);
+}
+
+// write run (start/stop timer)
+static ssize_t store_run(struct device* dev, struct device_attribute* attr, const char* buf, size_t count) {
+	// simple_strtoul convert string to unsigned long, (start of string, end of string, base 10)
+	u32 running = simple_strtoul(buf, NULL, BASE_TEN); 
+  reg_write(PIT_CONTROL_OFFSET, running);
+  return count;
 }
